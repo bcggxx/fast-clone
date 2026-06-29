@@ -1,5 +1,7 @@
 # fast-clone
 
+> **纯 vibe coding**，全程 AI 辅助生成，未手写一行代码。
+
 镜像站加速克隆 GitHub/GitLab 仓库，克隆完成后自动重置 remote 为官方地址。
 
 **核心价值**：从镜像站下载（快），后续 pull/push 走官方仓库（安全）。
