@@ -11,7 +11,7 @@
 ## 获取工具
 
 ```bash
-git clone https://github.com/你的仓库/fast-clone.git
+git clone https://github.com/bcggxx/fast-clone.git
 ```
 
 仓库保存在本地固定位置即可，安装后不要移动目录。
@@ -159,3 +159,33 @@ fast-clone/                ← 安装后保持此目录不动
 2. SSH 地址通过镜像以 HTTPS 克隆，完成后 remote 设回原始 SSH
 3. 镜像站可能随时变更，以 `--fastest` 实时测速为准
 4. 编辑 `_CONFIG` 字典新增/禁用镜像后，下次运行即可生效
+
+---
+
+## English
+
+```bash
+git clone https://github.com/bcggxx/fast-clone.git
+cd fast-clone
+
+# Windows
+windows\setup.bat
+
+# Linux
+bash linux/setup.sh
+
+# Usage
+fast-clone https://github.com/user/repo
+fast-clone --fastest https://github.com/user/repo
+fast-clone -l                    # list all mirrors
+fast-clone -n https://github.com/user/repo   # dry-run
+```
+
+Config: edit `_CONFIG` dict in `fastclone.py`. Changes take effect next run.
+
+| transform | example |
+|-----------|---------|
+| `prefix` | `https://mirror.com/{full-url}` |
+| `domain_replace` | `github.com` → `mirror.com` |
+| `path_prefix` | `https://mirror.com/github.com/owner/repo` |
+| `domain_suffix` | `github.com` → `github.com.mirror.org` |
