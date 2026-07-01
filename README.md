@@ -70,22 +70,25 @@ bash setup.sh
 | Python 3.7+ | [python.org](https://www.python.org/downloads/) 或包管理器 |
 | Git | [git-scm.com](https://git-scm.com/downloads/) 或包管理器 |
 
-## 可用镜像（10 个）
+## 可用镜像（13 个）
 
-| key | 镜像站 | 类型 | 实测 |
+| key | 镜像站 | 类型 | 说明 |
 |-----|--------|------|------|
+| `gh-proxy-org` * | gh-proxy.org | 前缀代理 | 默认镜像 |
+| `gh-proxy-v4` | v4.gh-proxy.org | 前缀代理 | IPv4 智能解析 |
+| `gh-proxy-v6` | v6.gh-proxy.org | 前缀代理 | IPv6/IPv4 双栈解析 |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | 前缀代理 | Fastly CDN 加速 |
 | `kkgithub` | kkgithub.com | 域名替换 | 27ms |
 | `github-akams` | github.akams.cn | 前缀代理 | 16ms |
 | `gitclone` | gitclone.com | 路径前缀 | 59ms |
 | `github-ur1` | github.ur1.fun | 域名替换 | 83ms |
-| `gh-proxy-org` | gh-proxy.org | 前缀代理 | 157ms |
 | `gh-proxy-com` | gh-proxy.com | 前缀代理 | 183ms |
 | `ghproxy-net` | ghproxy.net | 前缀代理 | 227ms |
 | `bgithub` | bgithub.xyz | 域名替换 | IPv6 |
 | `kgithub` | kgithub.com | 域名替换 | IPv6 |
 | `jihulab` | jihulab.com | GitLab 极狐 | 44ms |
 
-> 2026-06-30 TCP 443 端口实测。标注 IPv6 的镜像在纯 IPv4 环境可能不可达。
+> `*` 为默认镜像。2026-06-30 TCP 443 端口实测。标注 IPv6 的镜像在纯 IPv4 环境可能不可达。
 
 ## 自动保护
 

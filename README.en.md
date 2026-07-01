@@ -62,22 +62,25 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 | Python 3.7+ | [python.org](https://www.python.org/downloads/) or package manager |
 | Git | [git-scm.com](https://git-scm.com/downloads/) or package manager |
 
-## Available Mirrors (10)
+## Available Mirrors (13)
 
-| key | Mirror | Type | Latency |
-|-----|--------|------|---------|
+| key | Mirror | Type | Description |
+|-----|--------|------|-------------|
+| `gh-proxy-org` * | gh-proxy.org | prefix proxy | Default mirror |
+| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | IPv4 smart DNS |
+| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | IPv6/IPv4 dual-stack DNS |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | Fastly CDN acceleration |
 | `kkgithub` | kkgithub.com | domain replace | 27ms |
 | `github-akams` | github.akams.cn | prefix proxy | 16ms |
 | `gitclone` | gitclone.com | path prefix | 59ms |
 | `github-ur1` | github.ur1.fun | domain replace | 83ms |
-| `gh-proxy-org` | gh-proxy.org | prefix proxy | 157ms |
 | `gh-proxy-com` | gh-proxy.com | prefix proxy | 183ms |
 | `ghproxy-net` | ghproxy.net | prefix proxy | 227ms |
 | `bgithub` | bgithub.xyz | domain replace | IPv6 |
 | `kgithub` | kgithub.com | domain replace | IPv6 |
 | `jihulab` | jihulab.com | GitLab CN mirror | 44ms |
 
-> 2026-06-30 TCP port 443 test. Mirrors marked IPv6 may be unreachable on IPv4-only networks.
+> `*` Default mirror. 2026-06-30 TCP port 443 test. Mirrors marked IPv6 may be unreachable on IPv4-only networks.
 
 ## Auto-Protection
 
