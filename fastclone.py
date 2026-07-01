@@ -121,6 +121,7 @@ _T = {
     'clone_start':          {'zh': '开始克隆', 'en': 'Cloning'},
     'clone_done':           {'zh': '完成', 'en': 'Done'},
     'clone_success':        {'zh': '克隆成功 (镜像: {})', 'en': 'Clone success (mirror: {})'},
+    'clone_receiving':      {'zh': '接收对象', 'en': 'Receiving objects'},
 
     'speed_low':            {'zh': '下载速度持续低于 {} MB/s 已达 {} 秒，自动中止',
                              'en': 'Speed below {} MB/s for {}s, aborting'},
@@ -453,7 +454,7 @@ _LOCAL_PHASES = [
     'updating files', 'checking out files', 'resolving deltas',
     # Chinese (git i18n output for zh_CN / zh_TW)
     '更新文件', '检出文件', '处理 delta', '解析差异', '解析增量',
-    '正在更新', '正在检出', '完成',
+    '正在更新', '正在检出',
 ]
 _CONN_ERRS = ['could not resolve host', 'failed to connect',
               'connection timed out', 'connection refused',
@@ -462,6 +463,63 @@ _CONN_ERRS = ['could not resolve host', 'failed to connect',
               'returned error: 503', 'returned error: 504',
               'remote hung up', 'early eof', 'fetch failed',
               'error: rpc failed']
+
+# Progress display patterns (real-time clone output)
+_PROGRESS_SIZE_RE = re.compile(
+    r'(\d+(?:[.,]\d+)?)\s*(MiB|KiB)\s*\|\s*(\d+(?:[.,]\d+)?)\s*(MiB|KiB)/s')
+_REMOTE_INFO_WORDS = [
+    'enumerating', 'counting', 'compressing', 'total',
+    '枚举', '计数', '压缩', '总计',
+]
+_PHASE_LABELS = [
+    'receiving objects', '接收对象',
+    'resolving deltas', '处理 delta', '解析差异', '解析增量',
+    'updating files', '更新文件', 'checking out files', '检出文件',
+]
+
+
+def _render_progress(line: str) -> None:
+    """Display human-readable clone progress from a git stderr line."""
+    lower = line.lower()
+    stripped = line.strip()
+
+    # Remote info lines (enumeration, counting, compression)
+    if lower.startswith('remote:'):
+        if any(w in lower for w in _REMOTE_INFO_WORDS):
+            text = stripped[7:].strip()
+            print(f"  {text}")
+        return
+
+    # Receiving / downloading progress with size + speed
+    m = _PROGRESS_SIZE_RE.search(line)
+    if m:
+        size_val = float(m.group(1).replace(',', '.'))
+        size_unit = m.group(2)
+        speed_val = float(m.group(3).replace(',', '.'))
+        speed_unit = m.group(4)
+        size_mb = size_val / 1024 if size_unit == 'KiB' else size_val
+        print(f"\r  {L('clone_receiving')} {size_mb:.1f} MiB"
+              f"  @ {speed_val:.1f} {speed_unit}/s   ",
+              end='', flush=True)
+        return
+
+    # Phase completion: resolving deltas / updating files / checking out
+    if any(p in lower for p in _PHASE_LABELS):
+        if '100%' in stripped or '完成' in stripped or 'done' in lower:
+            # Clear the progress line first, then print the phase result
+            print('\r' + ' ' * 60 + '\r', end='')
+            label = stripped.split(',')[0].strip()
+            print_ok(label)
+            return
+
+    # Fatal/error lines — surface immediately
+    if 'fatal' in lower or 'error:' in lower:
+        print(f"  {stripped}")
+    # Fallback: show generic one-off progress lines (not done phases)
+    elif any(p in lower for p in _PHASE_LABELS):
+        if len(stripped) < 100:
+            label = stripped.split(',')[0].strip()
+            print_step(label)
 
 
 def _parse_speed(line: str) -> tuple[float | None, bool]:
@@ -509,16 +567,23 @@ class SpeedMonitor:
 
 
 def _stderr_reader(proc, monitor, collected, abort):
+    show_progress = sys.stderr.isatty()
     try:
         for line in proc.stderr:
             collected.append(line)
             monitor.feed(line)
+            if show_progress:
+                _render_progress(line)
             if monitor.should_abort():
                 abort.set()
                 _safe_kill(proc)
                 return
     except (ValueError, OSError):
         pass
+    finally:
+        # Clear any leftover \r progress line
+        if show_progress:
+            print('\r' + ' ' * 60 + '\r', end='')
 
 
 def _safe_kill(proc) -> None:
