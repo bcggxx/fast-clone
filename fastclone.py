@@ -625,6 +625,13 @@ def clone_with_monitor(mirror_url: str, target_dir: str,
         if os.name != 'nt':
             kw['preexec_fn'] = os.setsid
 
+        # Forward locale so git outputs in the user's language
+        env = os.environ.copy()
+        if _LANG == 'zh':
+            env['LANG'] = 'zh_CN.UTF-8'
+            env['LC_ALL'] = 'zh_CN.UTF-8'
+        kw['env'] = env
+
         proc = subprocess.Popen(cmd, **kw)
         t = threading.Thread(target=_stderr_reader,
                              args=(proc, mon, collected, abort), daemon=True)
