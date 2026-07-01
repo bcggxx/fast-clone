@@ -40,6 +40,9 @@ if os.name == 'nt':
 # ===========================================================================
 
 def _detect_language() -> str:
+    """Detect system language. Returns 'zh' (Simplified Chinese) or 'en'."""
+    zh_cn_lid = 0x0804  # zh-CN (Simplified Chinese) only
+
     # ---- Windows: try multiple locale / UI language APIs ----
     if os.name == 'nt':
         try:
@@ -48,13 +51,13 @@ def _detect_language() -> str:
 
             # 1) User default UI language (most accurate for display language)
             lid = kernel32.GetUserDefaultUILanguage()
-            if lid in (0x0804, 0x0404, 0x0C04, 0x1004):  # zh-CN/TW/HK/SG
+            if lid == zh_cn_lid:
                 return 'zh'
 
             # 2) System default UI language (fallback)
             try:
                 slid = kernel32.GetSystemDefaultUILanguage()
-                if slid in (0x0804, 0x0404, 0x0C04, 0x1004):
+                if slid == zh_cn_lid:
                     return 'zh'
             except Exception:
                 pass
@@ -63,15 +66,18 @@ def _detect_language() -> str:
             try:
                 lcid = kernel32.GetUserDefaultLCID()
                 if (lcid & 0x03FF) == 0x04:  # LANG_CHINESE
-                    return 'zh'
+                    # Only zh-CN sublang (0x02); exclude zh-TW/HK/SG/MO
+                    if ((lcid >> 10) & 0x3F) == 0x02:
+                        return 'zh'
             except Exception:
                 pass
 
             # 4) System locale
             try:
                 slcid = kernel32.GetSystemDefaultLCID()
-                if (slcid & 0x03FF) == 0x04:  # LANG_CHINESE
-                    return 'zh'
+                if (slcid & 0x03FF) == 0x04:
+                    if ((slcid >> 10) & 0x3F) == 0x02:
+                        return 'zh'
             except Exception:
                 pass
         except Exception:
@@ -80,14 +86,14 @@ def _detect_language() -> str:
     # ---- Unix / environment variables ----
     for var in ('LC_ALL', 'LC_MESSAGES', 'LANG', 'LANGUAGE'):
         v = os.environ.get(var, '')
-        if v.lower().startswith(('zh', 'chinese')):
+        if v.lower().startswith(('zh_cn', 'zh-cn', 'zh_hans', 'zh-hans', 'chinese_simplified')):
             return 'zh'
 
     # ---- Python locale module ----
     try:
         import locale
         loc, _ = locale.getdefaultlocale()
-        if loc and loc.lower().startswith(('zh', 'chinese')):
+        if loc and loc.lower().startswith(('zh_cn',)):
             return 'zh'
     except Exception:
         pass
