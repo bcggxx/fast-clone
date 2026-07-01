@@ -74,21 +74,21 @@ bash setup.sh
 
 | key | 镜像站 | 类型 | 延迟 | 说明 |
 |-----|--------|------|------|------|
-| `gh-proxy-org` * | gh-proxy.org | 前缀代理 | 180ms | 默认镜像 |
-| `gh-proxy-v4` | v4.gh-proxy.org | 前缀代理 | 42ms | 仅 IPv4 智能解析 |
-| `gh-proxy-v6` | v6.gh-proxy.org | 前缀代理 | 4255ms | IPv6/IPv4 双栈 |
-| `gh-proxy-cdn` | cdn.gh-proxy.org | 前缀代理 | 219ms | Fastly CDN 加速 |
-| `kkgithub` | kkgithub.com | 域名替换 | 723ms | — |
-| `github-akams` | github.akams.cn | 前缀代理 | 25ms | — |
-| `gitclone` | gitclone.com | 路径前缀 | 386ms | — |
-| `github-ur1` | github.ur1.fun | 域名替换 | 206ms | — |
-| `gh-proxy-com` | gh-proxy.com | 前缀代理 | 61ms | — |
-| `ghproxy-net` | ghproxy.net | 前缀代理 | 5305ms | — |
+| `gh-proxy-org` * | gh-proxy.org | 前缀代理 | 552ms | 默认镜像 |
+| `gh-proxy-v4` | v4.gh-proxy.org | 前缀代理 | 405ms | 仅 IPv4 智能解析 |
+| `gh-proxy-v6` | v6.gh-proxy.org | 前缀代理 | 6906ms | IPv6/IPv4 双栈 |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | 前缀代理 | 125ms | Fastly CDN 加速 |
+| `kkgithub` | kkgithub.com | 域名替换 | 47ms | — |
+| `github-akams` | github.akams.cn | 前缀代理 | 26ms | — |
+| `gitclone` | gitclone.com | 路径前缀 | 52ms | — |
+| `github-ur1` | github.ur1.fun | 域名替换 | 198ms | — |
+| `gh-proxy-com` | gh-proxy.com | 前缀代理 | 52ms | — |
+| `ghproxy-net` | ghproxy.net | 前缀代理 | 5256ms | — |
 | `bgithub` | bgithub.xyz | 域名替换 | — | 不可达（IPv6） |
 | `kgithub` | kgithub.com | 域名替换 | — | 不可达（IPv6） |
 | `jihulab` | jihulab.com | GitLab 极狐 | 62ms | — |
 
-> `*` 为默认镜像。2026-07-02 TCP 443 端口实测（3 次采样取均值），深圳电信 IPv4 环境。
+> `*` 为默认镜像。2026-07-02 TCP 443 端口实测（3 次采样取均值），深圳移动 IPv4/IPv6 混合环境。
 
 ## 自动保护
 
