@@ -448,7 +448,13 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
 # ===========================================================================
 
 _SPEED_RE = re.compile(r'(\d+[.,]?\d*)\s*(MiB|KiB)/s')
-_LOCAL_PHASES = ['updating files', 'checking out files', 'resolving deltas']
+_LOCAL_PHASES = [
+    # English
+    'updating files', 'checking out files', 'resolving deltas',
+    # Chinese (git i18n output for zh_CN / zh_TW)
+    '更新文件', '检出文件', '处理 delta', '解析差异', '解析增量',
+    '正在更新', '正在检出', '完成',
+]
 _CONN_ERRS = ['could not resolve host', 'failed to connect',
               'connection timed out', 'connection refused',
               'unable to access', 'network is unreachable',
