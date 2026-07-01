@@ -161,7 +161,7 @@ def L(key: str, *args) -> str:
 # ===========================================================================
 
 _CONFIG = {
-    "default": "kkgithub",
+    "default": "gh-proxy-org",
     "speed_threshold_kib": 1024,
     "speed_timeout_seconds": 180,
     "connect_retries": 3,
@@ -207,7 +207,28 @@ _CONFIG = {
             "platforms": ["github"],
             "transform": "prefix", "prefix": "https://gh-proxy.org/",
             "test_host": "gh-proxy.org",
-            "description": "gh-proxy.org - prefix proxy (157ms)",
+            "description": "gh-proxy.org - prefix proxy (157ms, default)",
+        },
+        "gh-proxy-v4": {
+            "name": "v4.gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix", "prefix": "https://v4.gh-proxy.org/",
+            "test_host": "v4.gh-proxy.org",
+            "description": "v4.gh-proxy.org - prefix proxy (IPv4)",
+        },
+        "gh-proxy-v6": {
+            "name": "v6.gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix", "prefix": "https://v6.gh-proxy.org/",
+            "test_host": "v6.gh-proxy.org",
+            "description": "v6.gh-proxy.org - prefix proxy (IPv6)",
+        },
+        "gh-proxy-cdn": {
+            "name": "cdn.gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix", "prefix": "https://cdn.gh-proxy.org/",
+            "test_host": "cdn.gh-proxy.org",
+            "description": "cdn.gh-proxy.org - prefix proxy (CDN)",
         },
         "gh-proxy-com": {
             "name": "gh-proxy.com",
@@ -387,6 +408,7 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
 # ===========================================================================
 
 _SPEED_RE = re.compile(r'(\d+[.,]?\d*)\s*(MiB|KiB)/s')
+_LOCAL_PHASES = ['updating files', 'checking out files', 'resolving deltas']
 _CONN_ERRS = ['could not resolve host', 'failed to connect',
               'connection timed out', 'connection refused',
               'unable to access', 'network is unreachable',
@@ -396,12 +418,16 @@ _CONN_ERRS = ['could not resolve host', 'failed to connect',
               'error: rpc failed']
 
 
-def _parse_speed(line: str) -> float | None:
+def _parse_speed(line: str) -> tuple[float | None, bool]:
+    """Returns (speed_kib, is_local_phase)."""
+    lower = line.lower()
+    if any(p in lower for p in _LOCAL_PHASES):
+        return None, True
     m = _SPEED_RE.search(line)
     if not m:
-        return None
+        return None, False
     v = float(m.group(1).replace(',', '.'))
-    return v * 1024 if m.group(2) == 'MiB' else v
+    return (v * 1024 if m.group(2) == 'MiB' else v), False
 
 
 def _is_connection_error(text: str) -> bool:
@@ -417,7 +443,11 @@ class SpeedMonitor:
         self._lk = threading.Lock()
 
     def feed(self, line: str) -> None:
-        s = _parse_speed(line)
+        s, is_local = _parse_speed(line)
+        if is_local:
+            with self._lk:
+                self._ok = time.time()
+            return
         if s is not None and s >= self.min:
             with self._lk:
                 self._ok = time.time()
@@ -812,12 +842,11 @@ def main() -> int:
     config = load_config()
     mirrors = get_mirrors(config)
     default = get_default_mirror(config)
+    speed_mb = get_speed_threshold(config) / 1024
+    speed_to = get_speed_timeout(config)
+    retries = get_connect_retries(config)
 
-    parser = argparse.ArgumentParser(
-        prog='fast-clone',
-        description='mirror-accelerated git clone with auto remote reset',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=f"""\
+    epilog = f"""\
 {L('mirror_usage1')}
   fast-clone --mirror github-akams https://github.com/user/repo
   fast-clone --fastest https://github.com/user/repo
@@ -825,48 +854,50 @@ def main() -> int:
   fast-clone --list-mirrors
   fast-clone --dry-run https://github.com/user/repo
 
-Transform examples:
-  official:     https://github.com/torvalds/linux.git
-  kkgithub:     https://kkgithub.com/torvalds/linux.git
-  github-akams: https://github.akams.cn/https://github.com/torvalds/linux.git
-  gitclone:     https://gitclone.com/github.com/torvalds/linux.git
+{L('mirror_list_title')} ({default}):  gh-proxy-org, kkgithub, gitclone, github-akams, github-ur1, gh-proxy-v4, gh-proxy-v6, gh-proxy-cdn, gh-proxy-com, ghproxy-net, bgithub, kgithub, jihulab
 
-Protection:
-  Speed < 1 MB/s for 3 min -> abort, clean, switch mirror
-  Connection error -> retry 3x per mirror, then switch
-  All mirrors fail -> fallback to official repo
+{L('mirror_threshold')}: {speed_mb:.0f} MB/s  |  {L('mirror_timeout')}: {speed_to}s  |  {L('mirror_retries')}: {retries}x
+"""
 
-Default: {default} | Speed: {get_speed_threshold(config)/1024:.0f} MB/s
-Retries: {get_connect_retries(config)} | Timeout: {get_speed_timeout(config)}s
-Config: edit _CONFIG dict in this script to add/remove mirrors
-""",
+    parser = argparse.ArgumentParser(
+        prog='fast-clone',
+        description=L('mirror_list_title'),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=epilog,
     )
 
-    parser.add_argument('url', nargs='?',
-                        help='official repo URL (e.g. https://github.com/user/repo)')
-    parser.add_argument('--mirror', '-m', default=None,
-                        help=f'specify mirror (default: {default})')
-    parser.add_argument('--fastest', '-f', action='store_true',
-                        help='auto-test and pick fastest mirror')
-    parser.add_argument('--timeout', '-t', type=float, default=3.0,
-                        help='speed-test timeout (default: 3s)')
-    parser.add_argument('--min-speed', type=float,
-                        help=f'min speed MB/s (default: {get_speed_threshold(config)/1024:.0f})')
-    parser.add_argument('--speed-timeout', type=int,
-                        help=f'speed timeout seconds (default: {get_speed_timeout(config)})')
-    parser.add_argument('--list-mirrors', '-l', action='store_true',
-                        help='list all available mirrors')
-    parser.add_argument('--branch', '-b', help='branch to clone')
-    parser.add_argument('--depth', '-d', type=int, help='shallow clone depth')
-    parser.add_argument('--single-branch', action='store_true',
-                        help='clone single branch only')
-    parser.add_argument('--target', help='target directory name')
-    parser.add_argument('--no-set-url', action='store_true',
-                        help='do not reset remote (debug)')
-    parser.add_argument('--dry-run', '-n', action='store_true',
-                        help='preview URL transform, no clone')
+    h_url = {'zh': '官方仓库地址 (如 https://github.com/user/repo)',
+             'en': 'Official repo URL (e.g. https://github.com/user/repo)'}
+
+    parser.add_argument('url', nargs='?', help=h_url.get(_LANG, h_url['en']))
+
+    h_mirror = {'zh': f'指定镜像站 (默认: {default})', 'en': f'Specify mirror (default: {default})'}
+    h_fastest = {'zh': '自动测速并选择延迟最低的镜像站', 'en': 'Auto-test and pick fastest mirror'}
+    h_timeout = {'zh': '测速超时秒数 (默认: 3)', 'en': 'Speed-test timeout seconds (default: 3)'}
+    h_minspeed = {'zh': f'最低下载速度 MB/s (默认: {speed_mb:.0f})', 'en': f'Min speed MB/s (default: {speed_mb:.0f})'}
+    h_speedto = {'zh': f'超时秒数 (默认: {speed_to})', 'en': f'Speed timeout seconds (default: {speed_to})'}
+    h_list = {'zh': '列出所有可用镜像站', 'en': 'List all available mirrors'}
+    h_branch = {'zh': '克隆指定分支', 'en': 'Branch to clone'}
+    h_depth = {'zh': '浅克隆深度', 'en': 'Shallow clone depth'}
+    h_single = {'zh': '仅克隆单个分支', 'en': 'Clone single branch only'}
+    h_target = {'zh': '目标目录名', 'en': 'Target directory name'}
+    h_noset = {'zh': '不重置 remote (调试用)', 'en': 'Do not reset remote (debug)'}
+    h_dry = {'zh': '预览 URL 转换，不实际克隆', 'en': 'Preview URL transform, no clone'}
+
+    parser.add_argument('--mirror', '-m', default=None, help=h_mirror.get(_LANG, h_mirror['en']))
+    parser.add_argument('--fastest', '-f', action='store_true', help=h_fastest.get(_LANG, h_fastest['en']))
+    parser.add_argument('--timeout', '-t', type=float, default=3.0, help=h_timeout.get(_LANG, h_timeout['en']))
+    parser.add_argument('--min-speed', type=float, help=h_minspeed.get(_LANG, h_minspeed['en']))
+    parser.add_argument('--speed-timeout', type=int, help=h_speedto.get(_LANG, h_speedto['en']))
+    parser.add_argument('--list-mirrors', '-l', action='store_true', help=h_list.get(_LANG, h_list['en']))
+    parser.add_argument('--branch', '-b', help=h_branch.get(_LANG, h_branch['en']))
+    parser.add_argument('--depth', '-d', type=int, help=h_depth.get(_LANG, h_depth['en']))
+    parser.add_argument('--single-branch', action='store_true', help=h_single.get(_LANG, h_single['en']))
+    parser.add_argument('--target', help=h_target.get(_LANG, h_target['en']))
+    parser.add_argument('--no-set-url', action='store_true', help=h_noset.get(_LANG, h_noset['en']))
+    parser.add_argument('--dry-run', '-n', action='store_true', help=h_dry.get(_LANG, h_dry['en']))
     parser.add_argument('--setup', action='store_true',
-                        help=argparse.SUPPRESS)  # internal, called by setup.bat
+                        help=argparse.SUPPRESS)
 
     args, extra = parser.parse_known_args()
     args.extra = extra
