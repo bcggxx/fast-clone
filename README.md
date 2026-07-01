@@ -21,7 +21,7 @@ git clone https://github.com/bcggxx/fast-clone.git
 ## 快速开始
 
 ```bash
-# 默认 kkgithub.com 镜像（域名替换，实测 27ms）
+# 默认 gh-proxy.org 镜像（前缀代理，552ms）
 fast-clone https://github.com/user/repo
 
 # 自动测速选最快镜像
