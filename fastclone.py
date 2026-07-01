@@ -40,18 +40,58 @@ if os.name == 'nt':
 # ===========================================================================
 
 def _detect_language() -> str:
+    # ---- Windows: try multiple locale / UI language APIs ----
     if os.name == 'nt':
         try:
             import ctypes
-            lid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+            kernel32 = ctypes.windll.kernel32
+
+            # 1) User default UI language (most accurate for display language)
+            lid = kernel32.GetUserDefaultUILanguage()
             if lid in (0x0804, 0x0404, 0x0C04, 0x1004):  # zh-CN/TW/HK/SG
                 return 'zh'
+
+            # 2) System default UI language (fallback)
+            try:
+                slid = kernel32.GetSystemDefaultUILanguage()
+                if slid in (0x0804, 0x0404, 0x0C04, 0x1004):
+                    return 'zh'
+            except Exception:
+                pass
+
+            # 3) User locale — extract primary language from LCID
+            try:
+                lcid = kernel32.GetUserDefaultLCID()
+                if (lcid & 0x03FF) == 0x04:  # LANG_CHINESE
+                    return 'zh'
+            except Exception:
+                pass
+
+            # 4) System locale
+            try:
+                slcid = kernel32.GetSystemDefaultLCID()
+                if (slcid & 0x03FF) == 0x04:  # LANG_CHINESE
+                    return 'zh'
+            except Exception:
+                pass
         except Exception:
             pass
-    for var in ('LC_ALL', 'LC_MESSAGES', 'LANG'):
+
+    # ---- Unix / environment variables ----
+    for var in ('LC_ALL', 'LC_MESSAGES', 'LANG', 'LANGUAGE'):
         v = os.environ.get(var, '')
         if v.lower().startswith(('zh', 'chinese')):
             return 'zh'
+
+    # ---- Python locale module ----
+    try:
+        import locale
+        loc, _ = locale.getdefaultlocale()
+        if loc and loc.lower().startswith(('zh', 'chinese')):
+            return 'zh'
+    except Exception:
+        pass
+
     return 'en'
 
 
