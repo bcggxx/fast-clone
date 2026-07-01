@@ -64,23 +64,23 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 
 ## Available Mirrors (13)
 
-| key | Mirror | Type | Description |
-|-----|--------|------|-------------|
-| `gh-proxy-org` * | gh-proxy.org | prefix proxy | Default mirror |
-| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | IPv4 smart DNS |
-| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | IPv6/IPv4 dual-stack DNS |
-| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | Fastly CDN acceleration |
-| `kkgithub` | kkgithub.com | domain replace | 27ms |
-| `github-akams` | github.akams.cn | prefix proxy | 16ms |
-| `gitclone` | gitclone.com | path prefix | 59ms |
-| `github-ur1` | github.ur1.fun | domain replace | 83ms |
-| `gh-proxy-com` | gh-proxy.com | prefix proxy | 183ms |
-| `ghproxy-net` | ghproxy.net | prefix proxy | 227ms |
-| `bgithub` | bgithub.xyz | domain replace | IPv6 |
-| `kgithub` | kgithub.com | domain replace | IPv6 |
-| `jihulab` | jihulab.com | GitLab CN mirror | 44ms |
+| key | Mirror | Type | Latency | Description |
+|-----|--------|------|---------|-------------|
+| `gh-proxy-org` * | gh-proxy.org | prefix proxy | 180ms | Default mirror |
+| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | 42ms | IPv4-only smart DNS |
+| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | 4255ms | IPv6/IPv4 dual-stack |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | 219ms | Fastly CDN |
+| `kkgithub` | kkgithub.com | domain replace | 723ms | — |
+| `github-akams` | github.akams.cn | prefix proxy | 25ms | — |
+| `gitclone` | gitclone.com | path prefix | 386ms | — |
+| `github-ur1` | github.ur1.fun | domain replace | 206ms | — |
+| `gh-proxy-com` | gh-proxy.com | prefix proxy | 61ms | — |
+| `ghproxy-net` | ghproxy.net | prefix proxy | 5305ms | — |
+| `bgithub` | bgithub.xyz | domain replace | — | Unreachable (IPv6) |
+| `kgithub` | kgithub.com | domain replace | — | Unreachable (IPv6) |
+| `jihulab` | jihulab.com | GitLab CN mirror | 62ms | — |
 
-> `*` Default mirror. 2026-06-30 TCP port 443 test. Mirrors marked IPv6 may be unreachable on IPv4-only networks.
+> `*` Default mirror. 2026-07-02 TCP port 443 test (3-sample average), Shenzhen China Telecom IPv4.
 
 ## Auto-Protection
 
