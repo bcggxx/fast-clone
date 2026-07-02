@@ -41,6 +41,13 @@ if os.name == 'nt':
 
 def _detect_language() -> str:
     """Detect system language. Returns 'zh' (Simplified Chinese) or 'en'."""
+    # Allow explicit override via environment variable
+    env_lang = os.environ.get('FASTCLONE_LANG', '').lower().strip()
+    if env_lang in ('zh', 'cn', 'chinese', 'zh-cn', 'zh_cn', 'zh-hans'):
+        return 'zh'
+    if env_lang in ('en', 'english'):
+        return 'en'
+
     zh_cn_lid = 0x0804  # zh-CN (Simplified Chinese) only
 
     # ---- Windows: try multiple locale / UI language APIs ----
@@ -90,15 +97,21 @@ def _detect_language() -> str:
             return 'zh'
 
     # ---- Python locale module ----
+    # NOTE: locale.getdefaultlocale() is deprecated since Python 3.11,
+    # removed in 3.15. Use locale.getlocale() instead (returns current
+    # locale set via setlocale; falls back to (None, None) if unset).
     try:
         import locale
-        loc, _ = locale.getdefaultlocale()
+        loc = locale.getlocale()[0]
         if loc and loc.lower().startswith(('zh_cn',)):
             return 'zh'
     except Exception:
         pass
 
-    return 'en'
+    # Default to Simplified Chinese: this tool ships CN mirror accelerators
+    # (gh-proxy, kkgithub, gitclone ...) and primarily targets CN users.
+    # Set FASTCLONE_LANG=en to force English output.
+    return 'zh'
 
 
 _LANG = _detect_language()
