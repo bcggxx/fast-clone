@@ -103,7 +103,7 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 编辑 `mirror.json` 文件：
 
-```python
+```json
 "my-mirror": {
     "name": "my-mirror.example.com",
     "platforms": ["github"],
@@ -111,9 +111,18 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
     "old": "github.com",
     "new": "my-mirror.example.com",
     "test_host": "my-mirror.example.com",
-    "description": "我的自建镜像",
-},
+    "ip": "dual",
+    "description": "我的自建镜像"
+}
 ```
+
+`ip` 字段控制协议过滤（运行时自动检测本机 IPv4/IPv6 支持，不支持时跳过对应镜像）：
+
+| 值 | 含义 |
+|----|------|
+| `dual` | 双栈，IPv4/IPv6 均可（默认） |
+| `v4` | 仅 IPv4 端点 |
+| `v6` | 仅 IPv6 端点 |
 
 4 种 `transform` 策略：
 
@@ -125,6 +134,14 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 | `domain_suffix` | `github.com` → `github.com.mirror.org` |
 
 删除条目即禁用。修改 `mirror.json` 顶层 `"default"` 切换默认镜像。
+
+## IPv4 / IPv6 自动检测
+
+启动克隆时自动探测本机网络协议支持（并行探测 Cloudflare 1.1.1.1 / 2606:4700:4700::1111:443），探测结果在进程内缓存：
+
+- 不支持 IPv6 → 跳过 `ip: "v6"` 镜像（如 `gh-proxy-v6`）
+- 不支持 IPv4 → 跳过 `ip: "v4"` 镜像（如 `gh-proxy-v4`、`gitclone`）
+- 使用 `--mirror` 显式指定镜像时不做过滤（尊重用户选择）
 
 ## 完整参数
 

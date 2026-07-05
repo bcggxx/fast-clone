@@ -172,6 +172,79 @@ def apply_mirror(info: dict, mirror: dict) -> str:
 
 
 # ===========================================================================
+# IPv4 / IPv6 support detection
+# ===========================================================================
+
+# Cached detection result: (has_ipv4, has_ipv6) or None if not yet detected.
+_IP_SUPPORT: tuple[bool, bool] | None = None
+
+# Public anycast endpoints used for reachability probing (TCP 443).
+_IPV4_PROBE = '1.1.1.1'
+_IPV6_PROBE = '2606:4700:4700::1111'
+
+
+def _probe_ip(family: int, addr: str, timeout: float = 2.0) -> bool:
+    """Try a TCP connect to a known public address of the given family."""
+    try:
+        s = socket.socket(family, socket.SOCK_STREAM)
+        s.settimeout(timeout)
+        s.connect((addr, 443))
+        s.close()
+        return True
+    except Exception:
+        return False
+
+
+def detect_ip_support(timeout: float = 2.0) -> tuple[bool, bool]:
+    """Detect whether the current environment has working IPv4 / IPv6.
+
+    Probes Cloudflare anycast (1.1.1.1 / 2606:4700:4700::1111) in parallel.
+    Result is cached for the lifetime of the process.
+    Returns (has_ipv4, has_ipv6).
+    """
+    global _IP_SUPPORT
+    if _IP_SUPPORT is not None:
+        return _IP_SUPPORT
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        f4 = pool.submit(_probe_ip, socket.AF_INET, _IPV4_PROBE, timeout)
+        f6 = pool.submit(_probe_ip, socket.AF_INET6, _IPV6_PROBE, timeout)
+        has_v4 = f4.result()
+        has_v6 = f6.result()
+
+    # If both probes failed the network is down / blocked: do not filter
+    # mirrors by IP version, let the actual clone attempt decide.
+    if not has_v4 and not has_v6:
+        has_v4 = has_v6 = True
+
+    _IP_SUPPORT = (has_v4, has_v6)
+    print(L('ip_detect', has_v4, has_v6))
+    return _IP_SUPPORT
+
+
+def filter_mirrors_by_ip(mirrors: dict, has_v4: bool, has_v6: bool) -> dict:
+    """Drop mirrors that require an IP version the environment cannot use.
+
+    A mirror's ``ip`` field is one of: ``dual`` (default, both), ``v4``
+    (IPv4-only endpoint), ``v6`` (IPv6-only endpoint). When detection is
+    inconclusive (both reported True) nothing is filtered.
+    """
+    if has_v4 and has_v6:
+        return mirrors
+    kept = {}
+    for k, v in mirrors.items():
+        ip = v.get('ip', 'dual')
+        if ip == 'v4' and not has_v4:
+            print(L('speed_cache_skip_v4', v.get('name', k)))
+            continue
+        if ip == 'v6' and not has_v6:
+            print(L('speed_cache_skip_v6', v.get('name', k)))
+            continue
+        kept[k] = v
+    return kept
+
+
+# ===========================================================================
 # Speed test
 # ===========================================================================
 
@@ -189,6 +262,12 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
                         timeout: float = 3.0) -> str:
     candidates = {k: v for k, v in mirrors.items()
                   if info['platform'] in v.get('platforms', [])}
+    if not candidates:
+        return get_default_mirror(config)
+
+    # Drop mirrors whose required IP version is unavailable in this env.
+    has_v4, has_v6 = detect_ip_support()
+    candidates = filter_mirrors_by_ip(candidates, has_v4, has_v6)
     if not candidates:
         return get_default_mirror(config)
 
@@ -543,6 +622,13 @@ def _resolve_mirror_list(args, info, config):
     plat = info['platform']
     cand = {k: v for k, v in mirrors.items()
             if plat in v.get('platforms', [])}
+
+    # Filter out mirrors that need an IP version this env cannot use.
+    # Only applies to the auto-selected fallback list, not to an explicit
+    # --mirror choice (the user picked it deliberately).
+    if not args.mirror:
+        has_v4, has_v6 = detect_ip_support()
+        cand = filter_mirrors_by_ip(cand, has_v4, has_v6)
 
     if args.fastest:
         fastest = find_fastest_mirror(info, cand, config, args.timeout)

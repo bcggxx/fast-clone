@@ -95,7 +95,7 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 Edit the `mirror.json` file:
 
-```python
+```json
 "my-mirror": {
     "name": "my-mirror.example.com",
     "platforms": ["github"],
@@ -103,9 +103,18 @@ Edit the `mirror.json` file:
     "old": "github.com",
     "new": "my-mirror.example.com",
     "test_host": "my-mirror.example.com",
-    "description": "My custom mirror",
-},
+    "ip": "dual",
+    "description": "My custom mirror"
+}
 ```
+
+The `ip` field controls protocol filtering (the host's IPv4/IPv6 support is auto-detected at runtime; mirrors requiring an unavailable protocol are skipped):
+
+| Value | Meaning |
+|-------|---------|
+| `dual` | Dual-stack, both IPv4/IPv6 (default) |
+| `v4` | IPv4-only endpoint |
+| `v6` | IPv6-only endpoint |
 
 4 transform strategies:
 
@@ -117,6 +126,14 @@ Edit the `mirror.json` file:
 | `domain_suffix` | `github.com` → `github.com.mirror.org` |
 
 Delete an entry to disable. Change the top-level `"default"` in `mirror.json` to switch the default mirror. Changes take effect on next run.
+
+## IPv4 / IPv6 Auto-Detection
+
+On clone startup the host's IPv4/IPv6 support is probed in parallel (Cloudflare 1.1.1.1 / 2606:4700:4700::1111 on port 443); the result is cached for the process:
+
+- No IPv6 → skip `ip: "v6"` mirrors (e.g. `gh-proxy-v6`)
+- No IPv4 → skip `ip: "v4"` mirrors (e.g. `gh-proxy-v4`, `gitclone`)
+- An explicit `--mirror` choice bypasses filtering (respects user intent)
 
 ## Full Options
 
