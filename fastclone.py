@@ -16,6 +16,7 @@ All mirror configs are embedded in _CONFIG dict - single file, no external deps.
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -245,6 +246,109 @@ def filter_mirrors_by_ip(mirrors: dict, has_v4: bool, has_v6: bool) -> dict:
 
 
 # ===========================================================================
+# Speed-test result cache (local, expires after 7 days)
+# ===========================================================================
+
+_CACHE_DIR = Path(__file__).resolve().parent / 'speedcache'
+_CACHE_EXPIRE_DAYS = 7
+
+
+def _cache_dir() -> Path:
+    """Ensure the cache directory exists and return it."""
+    _CACHE_DIR.mkdir(exist_ok=True)
+    return _CACHE_DIR
+
+
+def _cache_filename(dt: datetime.datetime) -> str:
+    """Cache filename = test time (Windows-safe, no colons)."""
+    return dt.strftime('%Y-%m-%d_%H%M%S') + '.json'
+
+
+def _find_valid_cache(platform: str) -> dict | None:
+    """Return the most recent non-expired cache entry for a platform, or None."""
+    now = datetime.datetime.now()
+    best: tuple[datetime.datetime, dict] | None = None
+    for f in _cache_dir().glob('*.json'):
+        try:
+            with open(f, 'r', encoding='utf-8') as fh:
+                data = json.load(fh)
+        except (json.JSONDecodeError, OSError):
+            continue
+        if data.get('platform') != platform:
+            continue
+        tt = data.get('test_time')
+        if not tt:
+            continue
+        try:
+            test_dt = datetime.datetime.fromisoformat(tt)
+        except ValueError:
+            continue
+        age = (now - test_dt).total_seconds()
+        if age > _CACHE_EXPIRE_DAYS * 86400:
+            continue  # expired
+        if best is None or test_dt > best[0]:
+            best = (test_dt, data)
+    return best[1] if best else None
+
+
+def _save_cache(platform: str, results: dict) -> Path:
+    """Persist speed-test results; filename is the test timestamp."""
+    now = datetime.datetime.now()
+    data = {
+        'test_time': now.isoformat(timespec='seconds'),
+        'platform': platform,
+        'results': results,
+    }
+    path = _cache_dir() / _cache_filename(now)
+    with open(path, 'w', encoding='utf-8') as fh:
+        json.dump(data, fh, ensure_ascii=False, indent=2)
+    return path
+
+
+def _find_expired_caches() -> list:
+    """List cache files older than _CACHE_EXPIRE_DAYS (or corrupt)."""
+    now = datetime.datetime.now()
+    expired = []
+    for f in _cache_dir().glob('*.json'):
+        test_dt = None
+        try:
+            with open(f, 'r', encoding='utf-8') as fh:
+                data = json.load(fh)
+            tt = data.get('test_time')
+            if tt:
+                test_dt = datetime.datetime.fromisoformat(tt)
+        except (json.JSONDecodeError, OSError, ValueError):
+            pass  # corrupt file → treat as expired
+        if test_dt is None:
+            expired.append(f)
+            continue
+        age = (now - test_dt).total_seconds()
+        if age > _CACHE_EXPIRE_DAYS * 86400:
+            expired.append(f)
+    return expired
+
+
+def prompt_delete_expired_caches() -> None:
+    """At startup, offer to delete expired (>7 day) cache files."""
+    expired = _find_expired_caches()
+    if not expired:
+        return
+    try:
+        ans = input(L('speed_cache_delete_q', len(expired))).strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        ans = 'n'
+    if ans in ('', 'y', 'yes'):
+        for f in expired:
+            try:
+                f.unlink()
+            except OSError:
+                pass
+        print_ok(L('speed_cache_deleted', len(expired)))
+    else:
+        print_step(L('speed_cache_kept'))
+
+
+# ===========================================================================
 # Speed test
 # ===========================================================================
 
@@ -256,6 +360,55 @@ def _tcp_latency(host: str, port: int = 443, timeout: float = 3.0) -> float:
         return time.monotonic() - t0
     except Exception:
         return float('inf')
+
+
+def _get_speed_results(platform: str, candidates: dict,
+                       timeout: float = 3.0) -> dict:
+    """Return {mirror_key: latency_seconds}. Uses cache when valid, else
+    runs a live TCP test and persists the result.
+
+    ``latency_seconds`` is ``float('inf')`` for unreachable mirrors.
+    """
+    # 1) Try a valid (non-expired) cache entry for this platform.
+    cached = _find_valid_cache(platform)
+    if cached:
+        results: dict[str, float] = {}
+        test_dt = cached.get('test_time', '')
+        try:
+            days = (datetime.datetime.now()
+                    - datetime.datetime.fromisoformat(test_dt)).days
+        except ValueError:
+            days = 0
+        for k, v in cached.get('results', {}).items():
+            if k not in candidates:
+                continue
+            ms = v.get('latency_ms')
+            results[k] = (ms / 1000.0) if ms is not None else float('inf')
+        if results:
+            print(L('speed_cached', test_dt, days))
+            return results
+        # Cache had no matching candidates → fall through to live test.
+
+    # 2) Live TCP latency test.
+    print(L('speed_testing', len(candidates)))
+    results = {}
+    with ThreadPoolExecutor(max_workers=min(len(candidates), 10)) as pool:
+        futures = {pool.submit(_tcp_latency, v['test_host'], 443, timeout): k
+                   for k, v in candidates.items()}
+        for fut in as_completed(futures):
+            results[futures[fut]] = fut.result()
+
+    # 3) Persist to cache (filename = test timestamp).
+    cache_results = {}
+    for k, lat in results.items():
+        cache_results[k] = {
+            'latency_ms': round(lat * 1000, 1) if lat != float('inf') else None,
+            'reachable': lat != float('inf'),
+        }
+    cache_path = _save_cache(platform, cache_results)
+    print_step(L('speed_cache_saved', cache_path.name))
+
+    return results
 
 
 def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
@@ -271,13 +424,7 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
     if not candidates:
         return get_default_mirror(config)
 
-    print(L('speed_testing', len(candidates)))
-    results = {}
-    with ThreadPoolExecutor(max_workers=min(len(candidates), 10)) as pool:
-        futures = {pool.submit(_tcp_latency, v['test_host'], 443, timeout): k
-                   for k, v in candidates.items()}
-        for fut in as_completed(futures):
-            results[futures[fut]] = fut.result()
+    results = _get_speed_results(info['platform'], candidates, timeout)
 
     for key, lat in sorted(results.items(), key=lambda x: x[1]):
         s = f"{lat*1000:.0f}ms" if lat != float('inf') else L('speed_unreachable')
@@ -904,6 +1051,9 @@ def main() -> int:
         print_step(L('direct_clone'))
         run_git(_build_clone_args(args, args.url))
         return 0
+
+    # Offer to clean up speed-test cache files older than 7 days.
+    prompt_delete_expired_caches()
 
     mirror_keys = _resolve_mirror_list(args, info, config)
 

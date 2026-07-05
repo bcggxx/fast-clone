@@ -135,6 +135,16 @@ On clone startup the host's IPv4/IPv6 support is probed in parallel (Cloudflare 
 - No IPv4 → skip `ip: "v4"` mirrors (e.g. `gh-proxy-v4`, `gitclone`)
 - An explicit `--mirror` choice bypasses filtering (respects user intent)
 
+## Speed-Test Result Cache
+
+`--fastest` results are saved under `speedcache/`, named by test time (e.g. `2026-07-06_055454.json`):
+
+- **Cache hit**: results for the same platform within 7 days are reused, skipping the live test
+- **Auto-expiry**: caches older than 7 days are treated as stale and re-tested
+- **Cleanup prompt**: when running a clone command, expired cache files trigger a delete prompt (default `Y` to delete, `n` to keep)
+
+The cache only stores latency data; it never modifies the available mirror list in `mirror.json`.
+
 ## Full Options
 
 | Option | Short | Description |
