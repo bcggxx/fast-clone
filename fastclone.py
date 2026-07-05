@@ -241,20 +241,6 @@ _CONFIG = {
             "test_host": "github.ur1.fun",
             "description": "github.ur1.fun - domain replace (83ms)",
         },
-        "bgithub": {
-            "name": "bgithub.xyz",
-            "platforms": ["github"],
-            "transform": "domain_replace", "old": "github.com", "new": "bgithub.xyz",
-            "test_host": "bgithub.xyz",
-            "description": "bgithub.xyz - domain replace (IPv6, community verified)",
-        },
-        "kgithub": {
-            "name": "kgithub.com",
-            "platforms": ["github"],
-            "transform": "domain_replace", "old": "github.com", "new": "kgithub.com",
-            "test_host": "kgithub.com",
-            "description": "kgithub.com - domain replace (IPv6, community verified)",
-        },
         "github-akams": {
             "name": "github.akams.cn",
             "platforms": ["github"],
@@ -984,7 +970,7 @@ def main() -> int:
   fast-clone --list-mirrors
   fast-clone --dry-run https://github.com/user/repo
 
-{L('mirror_list_title')} ({default}):  gh-proxy-org, kkgithub, gitclone, github-akams, github-ur1, gh-proxy-v4, gh-proxy-v6, gh-proxy-cdn, gh-proxy-com, ghproxy-net, bgithub, kgithub, jihulab
+{L('mirror_list_title')} ({default}):  gh-proxy-org, kkgithub, gitclone, github-akams, github-ur1, gh-proxy-v4, gh-proxy-v6, gh-proxy-cdn, gh-proxy-com, ghproxy-net, jihulab
 
 {L('mirror_threshold')}: {speed_mb:.0f} MB/s  |  {L('mirror_timeout')}: {speed_to}s  |  {L('mirror_retries')}: {retries}x
 """

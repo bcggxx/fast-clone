@@ -62,7 +62,7 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 | Python 3.7+ | [python.org](https://www.python.org/downloads/) or package manager |
 | Git | [git-scm.com](https://git-scm.com/downloads/) or package manager |
 
-## Available Mirrors (13)
+## Available Mirrors (11)
 
 | key | Mirror | Type | Latency | Description |
 |-----|--------|------|---------|-------------|
@@ -76,8 +76,6 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 | `github-ur1` | github.ur1.fun | domain replace | 189ms | — |
 | `gh-proxy-com` | gh-proxy.com | prefix proxy | 63ms | — |
 | `ghproxy-net` | ghproxy.net | prefix proxy | 1591ms | — |
-| `bgithub` | bgithub.xyz | domain replace | — | Unreachable (IPv6) |
-| `kgithub` | kgithub.com | domain replace | — | Unreachable (IPv6) |
 | `jihulab` | jihulab.com | GitLab CN mirror | 106ms | — |
 
 > `*` Default mirror. 2026-07-06 TCP port 443 test, Shenzhen China Mobile IPv4/IPv6 dual-stack.

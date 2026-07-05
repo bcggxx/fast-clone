@@ -70,7 +70,7 @@ bash setup.sh
 | Python 3.7+ | [python.org](https://www.python.org/downloads/) 或包管理器 |
 | Git | [git-scm.com](https://git-scm.com/downloads/) 或包管理器 |
 
-## 可用镜像（13 个）
+## 可用镜像（11 个）
 
 | key | 镜像站 | 类型 | 延迟 | 说明 |
 |-----|--------|------|------|------|
@@ -84,8 +84,6 @@ bash setup.sh
 | `github-ur1` | github.ur1.fun | 域名替换 | 189ms | — |
 | `gh-proxy-com` | gh-proxy.com | 前缀代理 | 63ms | — |
 | `ghproxy-net` | ghproxy.net | 前缀代理 | 1591ms | — |
-| `bgithub` | bgithub.xyz | 域名替换 | — | 不可达（IPv6） |
-| `kgithub` | kgithub.com | 域名替换 | — | 不可达（IPv6） |
 | `jihulab` | jihulab.com | GitLab 极狐 | 106ms | — |
 
 > `*` 为默认镜像。2026-07-06 TCP 443 端口实测，深圳移动 IPv4/IPv6 混合环境。
