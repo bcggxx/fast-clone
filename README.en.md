@@ -66,21 +66,21 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 
 | key | Mirror | Type | Latency | Description |
 |-----|--------|------|---------|-------------|
-| `gh-proxy-org` * | gh-proxy.org | prefix proxy | 552ms | Default mirror |
-| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | 405ms | IPv4-only smart DNS |
-| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | 6906ms | IPv6/IPv4 dual-stack |
-| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | 125ms | Fastly CDN |
-| `kkgithub` | kkgithub.com | domain replace | 47ms | — |
-| `github-akams` | github.akams.cn | prefix proxy | 26ms | — |
-| `gitclone` | gitclone.com | path prefix | 52ms | — |
-| `github-ur1` | github.ur1.fun | domain replace | 198ms | — |
-| `gh-proxy-com` | gh-proxy.com | prefix proxy | 52ms | — |
-| `ghproxy-net` | ghproxy.net | prefix proxy | 5256ms | — |
+| `gh-proxy-org` * | gh-proxy.org | prefix proxy | 169ms | Default mirror |
+| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | 43ms | IPv4-only smart DNS |
+| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | 2253ms | IPv6/IPv4 dual-stack |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | 93ms | Fastly CDN |
+| `kkgithub` | kkgithub.com | domain replace | 48ms | — |
+| `github-akams` | github.akams.cn | prefix proxy | 33ms | — |
+| `gitclone` | gitclone.com | path prefix | 71ms | — |
+| `github-ur1` | github.ur1.fun | domain replace | 189ms | — |
+| `gh-proxy-com` | gh-proxy.com | prefix proxy | 63ms | — |
+| `ghproxy-net` | ghproxy.net | prefix proxy | 1591ms | — |
 | `bgithub` | bgithub.xyz | domain replace | — | Unreachable (IPv6) |
 | `kgithub` | kgithub.com | domain replace | — | Unreachable (IPv6) |
-| `jihulab` | jihulab.com | GitLab CN mirror | 62ms | — |
+| `jihulab` | jihulab.com | GitLab CN mirror | 106ms | — |
 
-> `*` Default mirror. 2026-07-02 TCP port 443 test (3-sample average), Shenzhen China Mobile IPv4/IPv6 dual-stack.
+> `*` Default mirror. 2026-07-06 TCP port 443 test, Shenzhen China Mobile IPv4/IPv6 dual-stack.
 
 ## Auto-Protection
 
