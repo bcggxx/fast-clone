@@ -1,0 +1,110 @@
+{
+    "default": "gh-proxy-org",
+    "speed_threshold_kib": 1024,
+    "speed_timeout_seconds": 180,
+    "connect_retries": 3,
+    "mirrors": {
+        "kkgithub": {
+            "name": "kkgithub.com",
+            "platforms": ["github"],
+            "transform": "domain_replace",
+            "old": "github.com",
+            "new": "kkgithub.com",
+            "test_host": "kkgithub.com",
+            "ip": "dual",
+            "description": "kkgithub.com - domain replace (27ms)"
+        },
+        "github-ur1": {
+            "name": "github.ur1.fun",
+            "platforms": ["github"],
+            "transform": "domain_replace",
+            "old": "github.com",
+            "new": "github.ur1.fun",
+            "test_host": "github.ur1.fun",
+            "ip": "dual",
+            "description": "github.ur1.fun - domain replace (83ms)"
+        },
+        "github-akams": {
+            "name": "github.akams.cn",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://github.akams.cn/",
+            "test_host": "github.akams.cn",
+            "ip": "dual",
+            "description": "github.akams.cn - prefix proxy (16ms)"
+        },
+        "gh-proxy-org": {
+            "name": "gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://gh-proxy.org/",
+            "test_host": "gh-proxy.org",
+            "ip": "dual",
+            "description": "gh-proxy.org - prefix proxy (default)"
+        },
+        "gh-proxy-v4": {
+            "name": "v4.gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://v4.gh-proxy.org/",
+            "test_host": "v4.gh-proxy.org",
+            "ip": "v4",
+            "description": "v4.gh-proxy.org - prefix proxy, IPv4 only"
+        },
+        "gh-proxy-v6": {
+            "name": "v6.gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://v6.gh-proxy.org/",
+            "test_host": "v6.gh-proxy.org",
+            "ip": "v6",
+            "description": "v6.gh-proxy.org - prefix proxy, IPv6/IPv4 dual-stack"
+        },
+        "gh-proxy-cdn": {
+            "name": "cdn.gh-proxy.org",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://cdn.gh-proxy.org/",
+            "test_host": "cdn.gh-proxy.org",
+            "ip": "dual",
+            "description": "cdn.gh-proxy.org - prefix proxy, Fastly CDN"
+        },
+        "gh-proxy-com": {
+            "name": "gh-proxy.com",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://gh-proxy.com/",
+            "test_host": "gh-proxy.com",
+            "ip": "dual",
+            "description": "gh-proxy.com - prefix proxy (183ms)"
+        },
+        "ghproxy-net": {
+            "name": "ghproxy.net",
+            "platforms": ["github"],
+            "transform": "prefix",
+            "prefix": "https://ghproxy.net/",
+            "test_host": "ghproxy.net",
+            "ip": "dual",
+            "description": "ghproxy.net - prefix proxy (227ms)"
+        },
+        "gitclone": {
+            "name": "gitclone.com",
+            "platforms": ["github"],
+            "transform": "path_prefix",
+            "prefix": "https://gitclone.com/github.com/",
+            "test_host": "gitclone.com",
+            "ip": "v4",
+            "description": "gitclone.com - path prefix (59ms, CN server)"
+        },
+        "jihulab": {
+            "name": "jihulab.com",
+            "platforms": ["gitlab"],
+            "transform": "domain_replace",
+            "old": "gitlab.com",
+            "new": "jihulab.com",
+            "test_host": "jihulab.com",
+            "ip": "dual",
+            "description": "jihulab.com - GitLab CN mirror (44ms)"
+        }
+    }
+}

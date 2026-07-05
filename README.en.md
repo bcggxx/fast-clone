@@ -8,7 +8,7 @@ Mirror-accelerated clone for GitHub/GitLab repos, with automatic remote reset to
 
 **Core value**: Download fast from mirrors, pull/push safely to official repos.
 
-**Single-file distribution**: All configs embedded in `fastclone.py`, no external dependencies.
+**Zero external dependencies**: Python standard library only. Mirror config lives in `mirror.json`, bilingual strings in `i18n.py`.
 
 ## Get Started
 
@@ -93,7 +93,7 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 ## Adding / Disabling Mirrors
 
-Edit the `_CONFIG["mirrors"]` dict in `fastclone.py`:
+Edit the `mirror.json` file:
 
 ```python
 "my-mirror": {
@@ -116,7 +116,7 @@ Edit the `_CONFIG["mirrors"]` dict in `fastclone.py`:
 | `path_prefix` | `https://mirror.com/github.com/owner/repo` |
 | `domain_suffix` | `github.com` → `github.com.mirror.org` |
 
-Delete an entry to disable. Change `_CONFIG["default"]` to switch the default mirror. Changes take effect on next run.
+Delete an entry to disable. Change the top-level `"default"` in `mirror.json` to switch the default mirror. Changes take effect on next run.
 
 ## Full Options
 
@@ -139,7 +139,9 @@ Delete an entry to disable. Change `_CONFIG["default"]` to switch the default mi
 
 ```
 fast-clone/
-├── fastclone.py          # Core script (single-file, all config inside)
+├── fastclone.py          # Core script
+├── i18n.py               # Bilingual strings & language detection
+├── mirror.json           # Mirror site configuration
 ├── README.md             # Chinese docs
 ├── README.en.md          # English docs (this file)
 ├── LICENSE               # MIT
@@ -155,4 +157,4 @@ fast-clone/
 1. Do not move the repo directory after install, or re-run the setup script
 2. SSH URLs are cloned via HTTPS from mirrors, then remote is reset back to SSH
 3. Mirror sites may change; use `--fastest` for real-time speed test
-4. Edit the `_CONFIG` dict to add/remove mirrors; takes effect next run
+4. Edit `mirror.json` to add/remove mirrors; takes effect next run

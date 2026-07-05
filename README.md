@@ -8,7 +8,7 @@
 
 **核心价值**：从镜像站下载（快），后续 pull/push 走官方仓库（安全）。
 
-**单文件发行**：所有配置内嵌在 `fastclone.py` 中，无需外部配置文件。
+**零外部依赖**：仅用 Python 标准库，镜像配置独立在 `mirror.json`，中英文文案分离在 `i18n.py`。
 
 ## 获取工具
 
@@ -61,7 +61,7 @@ cd fast-clone/linux
 bash setup.sh
 ```
 
-安装脚本创建 wrapper 指向 `fastclone.py` 原位，`mirrors.json` 路径不变。
+安装脚本创建 wrapper 指向 `fastclone.py` 原位，`mirror.json` 路径不变。
 
 ### 前置依赖
 
@@ -101,7 +101,7 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 ## 新增 / 禁用镜像
 
-编辑 `fastclone.py` 中 `_CONFIG["mirrors"]` 字典：
+编辑 `mirror.json` 文件：
 
 ```python
 "my-mirror": {
@@ -124,7 +124,7 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 | `path_prefix` | `https://mirror.com/github.com/owner/repo` |
 | `domain_suffix` | `github.com` → `github.com.mirror.org` |
 
-删除条目即禁用。修改 `_CONFIG["default"]` 切换默认镜像。
+删除条目即禁用。修改 `mirror.json` 顶层 `"default"` 切换默认镜像。
 
 ## 完整参数
 
@@ -147,7 +147,9 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 ```
 fast-clone/                ← 安装后保持此目录不动
-├── fastclone.py           ← 核心脚本（单文件，含全部配置）
+├── fastclone.py           ← 核心脚本
+├── i18n.py                ← 中英文文案与语言检测
+├── mirror.json            ← 镜像站配置
 ├── README.md
 ├── windows/
 │   ├── setup.bat
@@ -161,4 +163,4 @@ fast-clone/                ← 安装后保持此目录不动
 1. 仓库目录安装后不要移动，否则需重新运行安装脚本
 2. SSH 地址通过镜像以 HTTPS 克隆，完成后 remote 设回原始 SSH
 3. 镜像站可能随时变更，以 `--fastest` 实时测速为准
-4. 编辑 `_CONFIG` 字典新增/禁用镜像后，下次运行即可生效
+4. 编辑 `mirror.json` 新增/禁用镜像后，下次运行即可生效

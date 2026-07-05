@@ -2,7 +2,7 @@
 # fast-clone Linux 安装脚本 (Debian / CentOS / Fedora / Arch)
 #
 # 安装方式: 创建 wrapper 脚本指向项目目录中的 fastclone.py，
-# 保证 SCRIPT_DIR 始终解析到项目根目录，mirrors.json 路径不变。
+# 保证 SCRIPT_DIR 始终解析到项目根目录，mirror.json 路径不变。
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -78,7 +78,7 @@ echo ""
 echo "[3/4] 安装 fast-clone ..."
 echo ""
 echo "  安装方式: 创建 wrapper 脚本，指向项目目录中的 fastclone.py"
-echo "  优点: mirrors.json 保持原位，修改即时生效"
+echo "  优点: mirror.json 保持原位，修改即时生效"
 echo ""
 echo "  选择安装位置:"
 echo "    [1] ~/.local/bin     (用户级，无需 sudo，推荐)"
@@ -165,6 +165,8 @@ echo "  fast-clone --list-mirrors"
 echo "  fast-clone --dry-run https://github.com/user/repo"
 echo ""
 echo "项目数据目录 (请勿删除): $TOOL_DIR"
-echo "  fastclone.py — 核心脚本（内嵌全部配置，编辑 _CONFIG 字典即可）"
+echo "  fastclone.py — 核心脚本"
+echo "  i18n.py      — 中英文文案"
+echo "  mirror.json  — 镜像站配置（编辑此文件即可增删镜像）"
 echo "  README.md    — 使用说明"
 echo ""

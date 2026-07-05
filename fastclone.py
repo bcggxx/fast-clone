@@ -16,6 +16,7 @@ All mirror configs are embedded in _CONFIG dict - single file, no external deps.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import shutil
@@ -38,95 +39,38 @@ if os.name == 'nt':
 
 
 # ===========================================================================
-# CONFIG - all mirror definitions
+# CONFIG - loaded from mirror.json (next to this script)
 # ===========================================================================
 
-_CONFIG = {
-    "default": "gh-proxy-org",
-    "speed_threshold_kib": 1024,
-    "speed_timeout_seconds": 180,
-    "connect_retries": 3,
+_CONFIG_PATH = Path(__file__).resolve().parent / 'mirror.json'
 
-    "mirrors": {
-        "kkgithub": {
-            "name": "kkgithub.com",
-            "platforms": ["github"],
-            "transform": "domain_replace", "old": "github.com", "new": "kkgithub.com",
-            "test_host": "kkgithub.com",
-            "description": "kkgithub.com - domain replace (27ms)",
-        },
-        "github-ur1": {
-            "name": "github.ur1.fun",
-            "platforms": ["github"],
-            "transform": "domain_replace", "old": "github.com", "new": "github.ur1.fun",
-            "test_host": "github.ur1.fun",
-            "description": "github.ur1.fun - domain replace (83ms)",
-        },
-        "github-akams": {
-            "name": "github.akams.cn",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://github.akams.cn/",
-            "test_host": "github.akams.cn",
-            "description": "github.akams.cn - prefix proxy (16ms)",
-        },
-        "gh-proxy-org": {
-            "name": "gh-proxy.org",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://gh-proxy.org/",
-            "test_host": "gh-proxy.org",
-            "description": "gh-proxy.org - prefix proxy (default)",
-        },
-        "gh-proxy-v4": {
-            "name": "v4.gh-proxy.org",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://v4.gh-proxy.org/",
-            "test_host": "v4.gh-proxy.org",
-            "description": "v4.gh-proxy.org - prefix proxy, IPv4 only",
-        },
-        "gh-proxy-v6": {
-            "name": "v6.gh-proxy.org",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://v6.gh-proxy.org/",
-            "test_host": "v6.gh-proxy.org",
-            "description": "v6.gh-proxy.org - prefix proxy, IPv6/IPv4 dual-stack",
-        },
-        "gh-proxy-cdn": {
-            "name": "cdn.gh-proxy.org",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://cdn.gh-proxy.org/",
-            "test_host": "cdn.gh-proxy.org",
-            "description": "cdn.gh-proxy.org - prefix proxy, Fastly CDN",
-        },
-        "gh-proxy-com": {
-            "name": "gh-proxy.com",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://gh-proxy.com/",
-            "test_host": "gh-proxy.com",
-            "description": "gh-proxy.com - prefix proxy (183ms)",
-        },
-        "ghproxy-net": {
-            "name": "ghproxy.net",
-            "platforms": ["github"],
-            "transform": "prefix", "prefix": "https://ghproxy.net/",
-            "test_host": "ghproxy.net",
-            "description": "ghproxy.net - prefix proxy (227ms)",
-        },
-        "gitclone": {
-            "name": "gitclone.com",
-            "platforms": ["github"],
-            "transform": "path_prefix", "prefix": "https://gitclone.com/github.com/",
-            "test_host": "gitclone.com",
-            "description": "gitclone.com - path prefix (59ms, CN server)",
-        },
-        "jihulab": {
-            "name": "jihulab.com",
-            "platforms": ["gitlab"],
-            "transform": "domain_replace", "old": "gitlab.com", "new": "jihulab.com",
-            "test_host": "jihulab.com",
-            "description": "jihulab.com - GitLab CN mirror (44ms)",
-        },
-    },
-}
+
+def _load_mirror_config() -> dict:
+    """Load mirror configuration from mirror.json next to this script.
+
+    Falls back to an empty-mirror config if the file is missing or corrupt,
+    so the tool can still direct-clone without any mirrors available.
+    """
+    try:
+        with open(_CONFIG_PATH, 'r', encoding='utf-8') as f:
+            cfg = json.load(f)
+        if not isinstance(cfg, dict) or 'mirrors' not in cfg:
+            raise ValueError("mirror.json missing 'mirrors' key")
+        return cfg
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+        sys.stderr.write(
+            f"warning: failed to load mirror.json ({e}); "
+            f"falling back to no mirrors\n")
+        return {
+            "default": "",
+            "speed_threshold_kib": 1024,
+            "speed_timeout_seconds": 180,
+            "connect_retries": 3,
+            "mirrors": {},
+        }
+
+
+_CONFIG = _load_mirror_config()
 
 
 # ===========================================================================

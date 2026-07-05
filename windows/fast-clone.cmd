@@ -21,7 +21,7 @@ if "%~1"=="" (
     echo   fast-clone --help
     echo.
     echo Setup: run setup.bat as administrator
-    echo Config: edit _CONFIG dict in fastclone.py
+    echo Config: edit mirror.json
     echo Manual: README.md
     echo.
     pause
