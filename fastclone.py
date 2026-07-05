@@ -179,9 +179,11 @@ def apply_mirror(info: dict, mirror: dict) -> str:
 # Cached detection result: (has_ipv4, has_ipv6) or None if not yet detected.
 _IP_SUPPORT: tuple[bool, bool] | None = None
 
-# Public anycast endpoints used for reachability probing (TCP 443).
-_IPV4_PROBE = '1.1.1.1'
-_IPV6_PROBE = '2606:4700:4700::1111'
+# Reachability probe endpoints (TCP 443). Each protocol tries Cloudflare
+# anycast first; on failure it falls back to Tencent DNSPod so that a
+# Cloudflare-only block does not cause a false-negative in mainland China.
+_IPV4_PROBES = ['1.1.1.1', '119.29.29.29']            # Cloudflare, Tencent DNSPod
+_IPV6_PROBES = ['2606:4700:4700::1111', '2402:4e00::']  # Cloudflare, Tencent DNSPod
 
 
 def _probe_ip(family: int, addr: str, timeout: float = 2.0) -> bool:
@@ -196,11 +198,21 @@ def _probe_ip(family: int, addr: str, timeout: float = 2.0) -> bool:
         return False
 
 
+def _probe_ip_any(family: int, addrs: list[str], timeout: float = 2.0) -> bool:
+    """Try each address in turn; return True on the first successful connect."""
+    for addr in addrs:
+        if _probe_ip(family, addr, timeout):
+            return True
+    return False
+
+
 def detect_ip_support(timeout: float = 2.0) -> tuple[bool, bool]:
     """Detect whether the current environment has working IPv4 / IPv6.
 
-    Probes Cloudflare anycast (1.1.1.1 / 2606:4700:4700::1111) in parallel.
-    Result is cached for the lifetime of the process.
+    Probes Cloudflare anycast first, falling back to Tencent DNSPod
+    (119.29.29.29 / 2402:4e00::) when Cloudflare is unreachable, so a
+    Cloudflare-only block does not produce a false negative. The two
+    protocols are tested in parallel. Result is cached for the process.
     Returns (has_ipv4, has_ipv6).
     """
     global _IP_SUPPORT
@@ -208,8 +220,8 @@ def detect_ip_support(timeout: float = 2.0) -> tuple[bool, bool]:
         return _IP_SUPPORT
 
     with ThreadPoolExecutor(max_workers=2) as pool:
-        f4 = pool.submit(_probe_ip, socket.AF_INET, _IPV4_PROBE, timeout)
-        f6 = pool.submit(_probe_ip, socket.AF_INET6, _IPV6_PROBE, timeout)
+        f4 = pool.submit(_probe_ip_any, socket.AF_INET, _IPV4_PROBES, timeout)
+        f6 = pool.submit(_probe_ip_any, socket.AF_INET6, _IPV6_PROBES, timeout)
         has_v4 = f4.result()
         has_v6 = f6.result()
 

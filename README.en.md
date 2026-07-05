@@ -129,7 +129,7 @@ Delete an entry to disable. Change the top-level `"default"` in `mirror.json` to
 
 ## IPv4 / IPv6 Auto-Detection
 
-On clone startup the host's IPv4/IPv6 support is probed in parallel (Cloudflare 1.1.1.1 / 2606:4700:4700::1111 on port 443); the result is cached for the process:
+On clone startup the host's IPv4/IPv6 support is probed in parallel — Cloudflare 1.1.1.1 / 2606:4700:4700::1111 first, falling back to Tencent DNSPod 119.29.29.29 / 2402:4e00:: on failure so a Cloudflare-only block does not cause a false negative; the result is cached for the process:
 
 - No IPv6 → skip `ip: "v6"` mirrors (e.g. `gh-proxy-v6`)
 - No IPv4 → skip `ip: "v4"` mirrors (e.g. `gh-proxy-v4`, `gitclone`)

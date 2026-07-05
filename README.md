@@ -137,7 +137,7 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 ## IPv4 / IPv6 自动检测
 
-启动克隆时自动探测本机网络协议支持（并行探测 Cloudflare 1.1.1.1 / 2606:4700:4700::1111:443），探测结果在进程内缓存：
+启动克隆时自动探测本机网络协议支持（先探测 Cloudflare 1.1.1.1 / 2606:4700:4700::1111:443，失败则回退腾讯 DNSPod 119.29.29.29 / 2402:4e00::，避免 Cloudflare 被墙时误判），探测结果在进程内缓存：
 
 - 不支持 IPv6 → 跳过 `ip: "v6"` 镜像（如 `gh-proxy-v6`）
 - 不支持 IPv4 → 跳过 `ip: "v4"` 镜像（如 `gh-proxy-v4`、`gitclone`）
