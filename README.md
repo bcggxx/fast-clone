@@ -153,6 +153,10 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 缓存仅记录延迟数据，不修改 `mirror.json` 中的可用镜像列表。
 
+## GitHub Actions 连通性测试
+
+仓库内置 `.github/workflows/mirror-test.yml`，每日 UTC 08:00（北京时间 16:00）自动运行 `scripts/test_mirrors.py`，对 `mirror.json` 中每个镜像站执行 TCP 443 连通性测试并生成 Markdown 报告（上传为 workflow artifact，保留 30 天）。该测试为只读操作，**不会修改 `mirror.json` 中的可用镜像**——镜像增删仅由人工编辑完成。超过半数镜像不可达时 workflow 标记为失败以便维护者察觉。也可在 Actions 页面手动触发（workflow_dispatch）。
+
 ## 完整参数
 
 | 参数 | 简写 | 说明 |
@@ -177,6 +181,10 @@ fast-clone/                ← 安装后保持此目录不动
 ├── fastclone.py           ← 核心脚本
 ├── i18n.py                ← 中英文文案与语言检测
 ├── mirror.json            ← 镜像站配置
+├── scripts/
+│   └── test_mirrors.py    ← GitHub Actions 连通性测试脚本
+├── .github/workflows/
+│   └── mirror-test.yml    ← 每日镜像连通性测试
 ├── README.md
 ├── windows/
 │   ├── setup.bat

@@ -145,6 +145,10 @@ On clone startup the host's IPv4/IPv6 support is probed in parallel (Cloudflare 
 
 The cache only stores latency data; it never modifies the available mirror list in `mirror.json`.
 
+## GitHub Actions Connectivity Test
+
+The repo ships `.github/workflows/mirror-test.yml`, which runs `scripts/test_mirrors.py` daily at 08:00 UTC. It performs a TCP 443 reachability check on every mirror in `mirror.json` and uploads a Markdown report as a workflow artifact (retained 30 days). This test is read-only and **never overwrites the available mirrors in `mirror.json`** — mirrors are added/removed only by manual edits. The workflow is marked as failed when more than half of the mirrors are unreachable, so maintainers notice. It can also be triggered manually from the Actions tab (workflow_dispatch).
+
 ## Full Options
 
 | Option | Short | Description |
@@ -169,6 +173,10 @@ fast-clone/
 ├── fastclone.py          # Core script
 ├── i18n.py               # Bilingual strings & language detection
 ├── mirror.json           # Mirror site configuration
+├── scripts/
+│   └── test_mirrors.py   # GitHub Actions connectivity test script
+├── .github/workflows/
+│   └── mirror-test.yml   # Daily mirror connectivity test
 ├── README.md             # Chinese docs
 ├── README.en.md          # English docs (this file)
 ├── LICENSE               # MIT

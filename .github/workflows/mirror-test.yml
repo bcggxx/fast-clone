@@ -1,0 +1,45 @@
+name: Daily Mirror Connectivity Test
+
+# Tests every mirror in mirror.json for TCP 443 reachability once a day.
+# Read-only: this workflow NEVER modifies mirror.json — it only generates a
+# report so maintainers can spot dead mirrors. Available mirrors are changed
+# exclusively by manual edits to mirror.json.
+
+on:
+  schedule:
+    # 08:00 UTC daily (16:00 Beijing time)
+    - cron: '0 8 * * *'
+  workflow_dispatch:  # allow manual triggering
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-test
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Test mirror connectivity
+        id: test
+        run: python scripts/test_mirrors.py --timeout 5
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirror-test-report
+          path: mirror-test-report.md
+          if-no-files-found: warn
+          retention-days: 30
