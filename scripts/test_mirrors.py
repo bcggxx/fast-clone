@@ -4,7 +4,8 @@
 Daily mirror connectivity test (used by GitHub Actions).
 
 Reads mirror.json, tests each mirror's TCP 443 reachability, and emits a
-Markdown report. This script is read-only: it NEVER modifies mirror.json.
+bilingual (Chinese + English) Markdown report. This script is read-only: it
+NEVER modifies mirror.json.
 
 Usage:
     python scripts/test_mirrors.py [--timeout 5]
@@ -73,11 +74,11 @@ def main() -> int:
         return 1
 
     now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-    lines = [f'# Mirror Connectivity Test — {now}', '']
-    lines.append(f'Runner IPv6 support: {"yes" if RUNNER_HAS_IPV6 else "no"}')
-    lines.append(f'Mirrors tested: {len(mirrors)}')
+    lines = [f'# 镜像连通性测试 / Mirror Connectivity Test — {now}', '']
+    lines.append(f'Runner IPv6 支持 / Runner IPv6 support: {"是 / yes" if RUNNER_HAS_IPV6 else "否 / no"}')
+    lines.append(f'测试镜像数 / Mirrors tested: {len(mirrors)}')
     lines.append('')
-    lines.append('| key | mirror | ip | latency | status |')
+    lines.append('| key | 镜像 / mirror | ip | 延迟 / latency | 状态 / status |')
     lines.append('|-----|--------|----|---------|--------|')
 
     reachable = 0
@@ -98,30 +99,30 @@ def main() -> int:
         ip = mirror.get('ip', 'dual')
         name = mirror.get('name', key)
         if lat is not None:
-            status = 'reachable'
+            status = '可达 reachable'
             lat_str = f'{lat} ms'
             reachable += 1
         elif err and err.startswith('skipped'):
-            status = err
+            status = '跳过 skipped'
             lat_str = '—'
             skipped += 1
         else:
-            status = f'unreachable ({err})' if err else 'unreachable'
+            status = f'不可达 unreachable ({err})' if err else '不可达 unreachable'
             lat_str = '—'
             unreachable += 1
         lines.append(f'| `{key}` | {name} | {ip} | {lat_str} | {status} |')
 
     lines.append('')
-    lines.append(f'**Summary**: {reachable} reachable, {unreachable} unreachable, '
-                 f'{skipped} skipped')
+    lines.append(f'**汇总 / Summary**: {reachable} 可达 reachable, {unreachable} 不可达 unreachable, '
+                 f'{skipped} 跳过 skipped')
     lines.append('')
-    lines.append('> This report is generated daily by GitHub Actions. '
-                 'It does NOT modify mirror.json — available mirrors are '
-                 'only changed by manual edits.')
+    lines.append('> 本报告由 GitHub Actions 每日自动生成，不会修改 mirror.json —— 可用镜像列表仅由人工编辑变更。')
+    lines.append('>')
+    lines.append('> This report is generated daily by GitHub Actions. It does NOT modify mirror.json — available mirrors are only changed by manual edits.')
 
     report = '\n'.join(lines)
 
-    # Write report file (committed-ready, but we only upload as artifact).
+    # Write report file (used as the GitHub Release body and asset).
     REPORT_FILE.write_text(report, encoding='utf-8')
     print(report)
     print(f'\nReport written to {REPORT_FILE}')
