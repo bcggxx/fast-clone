@@ -145,9 +145,17 @@ On clone startup the host's IPv4/IPv6 support is probed in parallel — Cloudfla
 
 The cache only stores latency data; it never modifies the available mirror list in `mirror.json`.
 
-## GitHub Actions Connectivity Test
+## GitHub Actions Daily Mirror-Status Release
 
-The repo ships `.github/workflows/mirror-test.yml`, which runs `scripts/test_mirrors.py` daily at 08:00 UTC. It performs a TCP 443 reachability check on every mirror in `mirror.json` and uploads a Markdown report as a workflow artifact (retained 30 days). This test is read-only and **never overwrites the available mirrors in `mirror.json`** — mirrors are added/removed only by manual edits. The workflow is marked as failed when more than half of the mirrors are unreachable, so maintainers notice. It can also be triggered manually from the Actions tab (workflow_dispatch).
+The repo ships `.github/workflows/mirror-test.yml`, which runs `scripts/test_mirrors.py` daily at 08:00 UTC. It performs a TCP 443 reachability check on every mirror in `mirror.json` and publishes the resulting Markdown report as a **GitHub Release** on the repo's Releases page:
+
+- **Fixed tag `mirror-status`**: the same Release is overwritten every day, so no history piles up and the Releases page always shows the latest test run
+- **Release body is the full report**: open the Release to see the latency and reachability table for every mirror
+- **Report also attached as a file**: download `mirror-test-report.md` to keep a copy
+- Read-only: **never overwrites the available mirrors in `mirror.json`** — mirrors are added/removed only by manual edits
+- Can also be triggered manually from the Actions tab (`workflow_dispatch`) to refresh the status immediately
+
+> This tool is installed via `git clone`, not downloaded from Releases, so the Releases page is dedicated to the daily mirror-status report.
 
 ## Full Options
 
@@ -176,7 +184,7 @@ fast-clone/
 ├── scripts/
 │   └── test_mirrors.py   # GitHub Actions connectivity test script
 ├── .github/workflows/
-│   └── mirror-test.yml   # Daily mirror connectivity test
+│   └── mirror-test.yml   # Daily mirror-status release
 ├── README.md             # Chinese docs
 ├── README.en.md          # English docs (this file)
 ├── LICENSE               # MIT
@@ -186,6 +194,23 @@ fast-clone/
 └── linux/
     └── setup.sh
 ```
+
+## Keeping Your Copy Up to Date
+
+fast-clone itself is a git repo; sync upstream updates with:
+
+```bash
+cd /path/to/fast-clone   # your install directory
+git pull
+```
+
+- **No reinstall needed**: the wrapper created by `windows\setup.bat` / `linux/setup.sh` points at `fastclone.py` in place, so it keeps working as long as the path is unchanged; `mirror.json` and other config paths are unaffected too
+- **Mirror list auto-updates**: upstream additions/removals in `mirror.json` (new mirrors, retired dead ones) come in with `git pull` and take effect on the next run
+- **Handling custom `mirror.json` conflicts**: if you have added or modified mirrors locally, `git pull` may conflict. Options:
+  - Merge manually: keep your custom entries while accepting upstream changes to the others
+  - Or fork the repo and maintain your custom config on your own fork
+- **Speed cache untouched**: `speedcache/` is in `.gitignore`, so `git pull` never disturbs local caches
+- **Moved the directory? Reinstall**: if you relocated the repo after install, re-run the setup script
 
 ## Notes
 

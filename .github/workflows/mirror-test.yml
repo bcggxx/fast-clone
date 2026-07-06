@@ -1,9 +1,12 @@
-name: Daily Mirror Connectivity Test
+name: Daily Mirror Status Release
 
-# Tests every mirror in mirror.json for TCP 443 reachability once a day.
-# Read-only: this workflow NEVER modifies mirror.json — it only generates a
-# report so maintainers can spot dead mirrors. Available mirrors are changed
-# exclusively by manual edits to mirror.json.
+# Publishes a single, self-updating GitHub Release tagged `mirror-status` once
+# a day. The release body is the Markdown report produced by
+# scripts/test_mirrors.py, so visitors can see current mirror reachability
+# straight from the repo's Releases page instead of digging through Actions
+# artifacts. Read-only with respect to mirror.json — this workflow NEVER
+# modifies the available mirror list; mirrors are added/removed only by manual
+# edits to mirror.json.
 
 on:
   schedule:
@@ -12,14 +15,14 @@ on:
   workflow_dispatch:  # allow manual triggering
 
 permissions:
-  contents: read
+  contents: write  # required to create / delete releases and tags
 
 concurrency:
-  group: mirror-test
+  group: mirror-status
   cancel-in-progress: false
 
 jobs:
-  test:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -33,13 +36,38 @@ jobs:
 
       - name: Test mirror connectivity
         id: test
+        # Always publish the status release, even when more than half of the
+        # mirrors are unreachable — a degraded state is exactly what visitors
+        # need to see. The script's non-zero exit still surfaces in the run log.
+        continue-on-error: true
         run: python scripts/test_mirrors.py --timeout 5
 
-      - name: Upload report artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mirror-test-report
-          path: mirror-test-report.md
-          if-no-files-found: warn
-          retention-days: 30
+      - name: Publish mirror-status release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          REPORT="mirror-test-report.md"
+          NOW=$(date -u '+%Y-%m-%d %H:%M UTC')
+          TITLE="Mirror Connectivity Status (updated ${NOW})"
+          DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
+
+          # Fall back to a minimal note if the report was never written
+          # (e.g. mirror.json could not be parsed).
+          if [[ ! -f "$REPORT" ]]; then
+            echo "No report was generated. See the workflow run log for details." > "$REPORT"
+          fi
+
+          # Replace the previous mirror-status release and tag in one shot so
+          # the Releases page always reflects the latest test run rather than
+          # accumulating one entry per day.
+          gh release delete mirror-status \
+            --repo "$GITHUB_REPOSITORY" \
+            --yes --cleanup-tag 2>/dev/null || true
+
+          gh release create mirror-status \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$TITLE" \
+            --notes-file "$REPORT" \
+            --target "$DEFAULT_BRANCH" \
+            "$REPORT"

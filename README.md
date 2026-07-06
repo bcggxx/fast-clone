@@ -153,9 +153,17 @@ fast-clone --min-speed 2 --speed-timeout 120 https://github.com/user/repo
 
 缓存仅记录延迟数据，不修改 `mirror.json` 中的可用镜像列表。
 
-## GitHub Actions 连通性测试
+## GitHub Actions 每日镜像状态 Release
 
-仓库内置 `.github/workflows/mirror-test.yml`，每日 UTC 08:00（北京时间 16:00）自动运行 `scripts/test_mirrors.py`，对 `mirror.json` 中每个镜像站执行 TCP 443 连通性测试并生成 Markdown 报告（上传为 workflow artifact，保留 30 天）。该测试为只读操作，**不会修改 `mirror.json` 中的可用镜像**——镜像增删仅由人工编辑完成。超过半数镜像不可达时 workflow 标记为失败以便维护者察觉。也可在 Actions 页面手动触发（workflow_dispatch）。
+仓库内置 `.github/workflows/mirror-test.yml`，每日 UTC 08:00（北京时间 16:00）自动运行 `scripts/test_mirrors.py`，对 `mirror.json` 中每个镜像站执行 TCP 443 连通性测试，生成 Markdown 报告后以 **GitHub Release** 形式发布到仓库 Releases 页面：
+
+- **固定 tag `mirror-status`**：每天覆盖更新同一个 Release，不堆积历史记录，Releases 页面始终展示最新一次测试结果
+- **Release 正文即报告全文**：点开 Release 即可看到每个镜像的延迟与可达性表格
+- **报告同时作为附件**：可下载 `mirror-test-report.md` 留存
+- 该流程为只读操作，**不会修改 `mirror.json` 中的可用镜像**——镜像增删仅由人工编辑完成
+- 也可在 Actions 页面手动触发（`workflow_dispatch`）立即刷新状态
+
+> 本工具通过 `git clone` 安装而非 Release 下载，因此 Releases 页面专门用于承载每日镜像状态报告。
 
 ## 完整参数
 
@@ -184,7 +192,7 @@ fast-clone/                ← 安装后保持此目录不动
 ├── scripts/
 │   └── test_mirrors.py    ← GitHub Actions 连通性测试脚本
 ├── .github/workflows/
-│   └── mirror-test.yml    ← 每日镜像连通性测试
+│   └── mirror-test.yml    ← 每日镜像状态 Release
 ├── README.md
 ├── windows/
 │   ├── setup.bat
@@ -192,6 +200,23 @@ fast-clone/                ← 安装后保持此目录不动
 └── linux/
     └── setup.sh
 ```
+
+## 后续更新
+
+fast-clone 本身也是 git 仓库，后续有更新时同步到本地：
+
+```bash
+cd /path/to/fast-clone   # 你的安装目录
+git pull
+```
+
+- **无需重新安装**：`windows\setup.bat` / `linux\setup.sh` 创建的 wrapper 指向 `fastclone.py` 原位，路径不变即生效，`mirror.json` 等配置路径也不变
+- **镜像列表自动更新**：上游对 `mirror.json` 的增删（如新增可用镜像、移除失效镜像）随 `git pull` 自动同步，下次运行即生效
+- **自定义 `mirror.json` 冲突处理**：若你在本地新增/修改过镜像，`git pull` 可能产生冲突。建议：
+  - 冲突时手动合并：保留你的自定义条目，同时接纳上游对其他条目的改动
+  - 或 fork 仓库后在自有 fork 中维护自定义配置
+- **测速缓存不受影响**：`speedcache/` 已加入 `.gitignore`，`git pull` 不会触碰本地缓存
+- **移动过目录需重装**：若安装后移动了仓库位置，需重新运行安装脚本
 
 ## 注意事项
 
