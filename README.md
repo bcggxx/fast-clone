@@ -2,13 +2,31 @@
 
 **中文** | [English](README.en.md)
 
+## 📑 目录
+
+- [📦 获取工具](#获取工具)
+- [🚀 快速开始](#快速开始)
+- [⚙️ 安装](#安装)
+  - [Windows](#windows)
+  - [Linux](#linux)
+  - [前置依赖](#前置依赖)
+- [🪞 可用镜像](#可用镜像)
+- [🛡️ 自动保护](#自动保护)
+- [➕ 新增 / 禁用镜像](#新增-禁用镜像)
+- [🌐 IPv4 / IPv6 自动检测](#ipv4-ipv6-自动检测)
+- [💾 测速结果缓存](#测速结果缓存)
+- [⚡ GitHub Actions 每日镜像状态 Release](#github-actions-每日镜像状态-release)
+- [📋 完整参数](#完整参数)
+- [📁 项目结构](#项目结构)
+- [🔄 后续更新](#后续更新)
+- [⚠️ 注意事项](#注意事项)
+
 > **纯 vibe coding**，全程 AI 辅助生成，未手写一行代码。
 
-镜像站加速克隆 GitHub/GitLab 仓库，克隆完成后自动重置 remote 为官方地址。
-
-**核心价值**：从镜像站下载（快），后续 pull/push 走官方仓库（安全）。
-
-**零外部依赖**：仅用 Python 标准库，镜像配置独立在 `mirror.json`，中英文文案分离在 `i18n.py`。
+> [!NOTE]
+> 镜像站加速克隆 GitHub/GitLab 仓库，克隆完成后**自动重置 remote 为官方地址**。  
+> **核心价值**：从镜像站下载（快），后续 `pull`/`push` 走官方仓库（安全）。  
+> **零外部依赖**：仅用 Python 标准库，镜像配置独立在 `mirror.json`，中英文文案分离在 `i18n.py`。
 
 ## 获取工具
 
@@ -19,6 +37,9 @@ git clone https://github.com/bcggxx/fast-clone.git
 仓库保存在本地固定位置即可，安装后不要移动目录。
 
 ## 快速开始
+
+> [!TIP]
+> 不确定哪个镜像最快？加上 `--fastest` 参数，工具会自动测速并选择延迟最低的镜像。
 
 ```bash
 # 默认 gh-proxy.org 镜像（前缀代理，552ms）
@@ -38,6 +59,9 @@ fast-clone -l
 ```
 
 ## 安装
+
+> [!IMPORTANT]
+> 仓库目录**安装后不要移动**，否则需要重新运行安装脚本才能让 `fast-clone` 命令重新生效。
 
 ### Windows
 
@@ -70,7 +94,7 @@ bash setup.sh
 | Python 3.7+ | [python.org](https://www.python.org/downloads/) 或包管理器 |
 | Git | [git-scm.com](https://git-scm.com/downloads/) 或包管理器 |
 
-## 可用镜像（11 个）
+## 可用镜像
 
 | key | 镜像站 | 类型 | 延迟 | 说明 |
 |-----|--------|------|------|------|

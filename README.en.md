@@ -2,15 +2,36 @@
 
 [中文版](README.md) | **English**
 
+## 📑 Table of Contents
+
+- [📦 Get Started](#get-started)
+- [🚀 Quick Start](#quick-start)
+- [⚙️ Install](#install)
+  - [Windows](#windows)
+  - [Linux](#linux)
+  - [Prerequisites](#prerequisites)
+- [🪞 Available Mirrors](#available-mirrors-11)
+- [🛡️ Auto-Protection](#auto-protection)
+- [➕ Adding / Disabling Mirrors](#adding-disabling-mirrors)
+- [🌐 IPv4 / IPv6 Auto-Detection](#ipv4-ipv6-auto-detection)
+- [💾 Speed-Test Result Cache](#speed-test-result-cache)
+- [⚡ GitHub Actions Daily Mirror-Status Release](#github-actions-daily-mirror-status-release)
+- [📋 Full Options](#full-options)
+- [📁 Project Structure](#project-structure)
+- [🔄 Keeping Your Copy Up to Date](#keeping-your-copy-up-to-date)
+- [⚠️ Notes](#notes)
+
 > **Pure vibe coding** — entirely AI-assisted, zero hand-written code.
 
-Mirror-accelerated clone for GitHub/GitLab repos, with automatic remote reset to the official URL.
-
-**Core value**: Download fast from mirrors, pull/push safely to official repos.
-
-**Zero external dependencies**: Python standard library only. Mirror config lives in `mirror.json`, bilingual strings in `i18n.py`.
+> [!NOTE]
+> Mirror-accelerated clone for GitHub/GitLab repos, with **automatic remote reset to the official URL** after cloning.  
+> **Core value**: Download fast from mirrors, pull/push safely to official repos.  
+> **Zero external dependencies**: Python standard library only. Mirror config lives in `mirror.json`, bilingual strings in `i18n.py`.
 
 ## Get Started
+
+> [!TIP]
+> Not sure which mirror is fastest? Add the `--fastest` flag and the tool will speed-test and pick the lowest-latency mirror automatically.
 
 ```bash
 git clone https://github.com/bcggxx/fast-clone.git
@@ -30,6 +51,9 @@ fast-clone -n https://github.com/user/repo   # dry-run
 ```
 
 ## Install
+
+> [!IMPORTANT]
+> Do **not move the repo directory after install**, or re-run the setup script so the `fast-clone` command works again.
 
 ### Windows
 
