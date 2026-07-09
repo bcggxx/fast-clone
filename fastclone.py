@@ -703,8 +703,8 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
     if not mirror_keys:
         print_warn(L('no_mirrors_for_plat', info['platform']))
         print_step(L('direct_clone'))
-        run_git(['clone', '--progress'] + base + [url])
-        return 0 if tp.exists() else 1
+        rc = run_git(_build_clone_args(args, url)).returncode
+        return 0 if rc == 0 else 1
 
     tried = []
     conn_errs = 0
@@ -767,8 +767,8 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
     print_step(L('tried_mirrors', ', '.join(tried)))
     print()
     print_step(L('final_direct'))
-    run_git(['clone', '--progress'] + base + [url])
-    return 1
+    rc = run_git(_build_clone_args(args, url)).returncode
+    return 0 if rc == 0 else 1
 
 
 def _set_remote(tp: Path, url: str) -> None:
