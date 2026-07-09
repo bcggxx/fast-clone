@@ -1075,6 +1075,11 @@ def main() -> int:
 
     mirror_keys = _resolve_mirror_list(args, info, config)
 
+    if not mirror_keys:
+        print_warn(L('no_mirrors_for_plat', info['platform']))
+        print_step(L('direct_clone'))
+        return 0 if run_git(_build_clone_args(args, args.url)).returncode == 0 else 1
+
     print_header(L('repo_info'))
     print(f"  {L('repo_platform') + ':':12s} {info['platform']}")
     print(f"  {L('repo_name') + ':':12s} {info['owner']}/{info['repo']}")
