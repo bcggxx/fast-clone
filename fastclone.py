@@ -631,7 +631,7 @@ def clone_with_monitor(mirror_url: str, target_dir: str,
         kw: dict = {'stderr': subprocess.PIPE, 'stdout': subprocess.DEVNULL,
                     'text': True, 'encoding': 'utf-8', 'errors': 'replace'}
         if os.name != 'nt':
-            kw['preexec_fn'] = os.setsid
+            kw['start_new_session'] = True
 
         proc = subprocess.Popen(cmd, **kw)
         t = threading.Thread(target=_stderr_reader,
@@ -718,7 +718,8 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
 
         if i > 0:
             print_separator()
-            print(L('mirror_switch', i+1, len(mirror_keys), mir['name']))
+            valid_count = len([k for k in mirror_keys if k in mirrors])
+            print(L('mirror_switch', i + 1, valid_count, mir['name']))
 
         retry = max_retry
         while retry > 0:
