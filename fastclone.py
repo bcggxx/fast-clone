@@ -685,7 +685,12 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
         speed_to = args.speed_timeout
 
     td = args.target if args.target else info['repo']
+    if not td:
+        die(L('clone_fail_code', -1, f"无法解析仓库名: {args.url}"))
     tp = Path(td).resolve()
+    # 严禁克隆到当前工作目录，避免误删用户数据
+    if tp.resolve() == Path.cwd().resolve():
+        die(L('clone_fail_code', -1, "拒绝克隆到当前工作目录"))
 
     base = []
     if args.branch:
@@ -717,7 +722,8 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
 
         retry = max_retry
         while retry > 0:
-            if tp.exists():
+            # 严禁删除当前工作目录，避免误删用户数据
+            if tp.exists() and tp.resolve() != Path.cwd().resolve():
                 print_step(L('cleanup', tp))
                 shutil.rmtree(tp, ignore_errors=True)
 
