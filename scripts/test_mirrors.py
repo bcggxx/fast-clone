@@ -29,8 +29,20 @@ from pathlib import Path
 MIRROR_JSON = Path(__file__).resolve().parent.parent / 'mirror.json'
 REPORT_FILE = Path(__file__).resolve().parent.parent / 'mirror-test-report.md'
 
-# GitHub Actions ubuntu runners have no IPv6 connectivity.
-RUNNER_HAS_IPV6 = False
+def _detect_runner_ipv6() -> bool:
+    """Best-effort IPv6 connectivity probe (Cloudflare anycast :443)."""
+    try:
+        s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        s.settimeout(2.0)
+        s.connect(('2606:4700:4700::1111', 443))
+        s.close()
+        return True
+    except Exception:
+        return False
+
+
+# Probe the runner's real IPv6 capability instead of assuming "no".
+RUNNER_HAS_IPV6 = _detect_runner_ipv6()
 
 
 def load_mirrors() -> dict:
