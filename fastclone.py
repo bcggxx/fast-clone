@@ -1070,9 +1070,6 @@ def main() -> int:
         run_git(_build_clone_args(args, args.url))
         return 0
 
-    # Offer to clean up speed-test cache files older than 7 days.
-    prompt_delete_expired_caches()
-
     mirror_keys = _resolve_mirror_list(args, info, config)
 
     if not mirror_keys:
@@ -1103,6 +1100,10 @@ def main() -> int:
                 print(f"  {mk:18s} -> {apply_mirror(info, mirrors[mk])}")
         print_step(L('dry_run_msg'))
         return 0
+
+    # Offer to clean up speed-test cache files older than 7 days
+    # (placed after dry-run so --dry-run never triggers interactive cleanup).
+    prompt_delete_expired_caches()
 
     print_header(L('clone_start'))
     return clone_with_fallback(info, args.url, args, config, mirror_keys)
