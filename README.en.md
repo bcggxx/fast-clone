@@ -4,6 +4,7 @@
 
 ## 📑 Table of Contents
 
+- [🏆 Why Choose Us](#why-choose-us)
 - [📦 Get Started](#get-started)
 - [🚀 Quick Start](#quick-start)
 - [⚙️ Install](#install)
@@ -27,6 +28,19 @@
 > Mirror-accelerated clone for GitHub/GitLab repos, with **automatic remote reset to the official URL** after cloning.  
 > **Core value**: Download fast from mirrors, pull/push safely to official repos.  
 > **Zero external dependencies**: Python standard library only. Mirror config lives in `mirror.json`, bilingual strings in `i18n.py`.
+
+## 🏆 Why Choose Us
+
+- **Safe & worry-free** — Auto-resets remote to official URL after cloning, download fast, `pull`/`push` safe
+- **Auditable code** — Pure-text Python source, no binaries, no obfuscation, no compiled artifacts, fully public and reviewable
+- **Zero dependencies** — Python standard library only, no `pip install` needed
+- **Smart protection** — Speed monitoring + auto-retry + fallback to direct, very low failure rate
+- **Multi-mirror support** — 11 built-in mirrors covering prefix proxy / domain replace / path prefix and more
+- **Network adaptive** — Auto-detects IPv4/IPv6 support, skips unavailable mirrors
+- **Speed-test cache** — 7-day result reuse, avoids repeated testing
+- **Daily status report** — GitHub Actions tests mirror reachability daily and publishes via Release
+- **Bilingual** — Auto-detects and switches between Chinese/English
+- **Highly customizable** — Edit `mirror.json` to add/remove mirrors, takes effect next run
 
 ## Get Started
 
