@@ -102,21 +102,21 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 
 ## Available Mirrors (11)
 
-| key | Mirror | Type | Latency | Description |
-|-----|--------|------|---------|-------------|
-| `gh-proxy-org` * | gh-proxy.org | prefix proxy | 169ms | Default mirror |
-| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | 43ms | IPv4-only smart DNS |
-| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | 2253ms | IPv6/IPv4 dual-stack |
-| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | 93ms | Fastly CDN |
-| `kkgithub` | kkgithub.com | domain replace | 48ms | — |
-| `github-akams` | github.akams.cn | prefix proxy | 33ms | — |
-| `gitclone` | gitclone.com | path prefix | 71ms | — |
-| `github-ur1` | github.ur1.fun | domain replace | 189ms | — |
-| `gh-proxy-com` | gh-proxy.com | prefix proxy | 63ms | — |
-| `ghproxy-net` | ghproxy.net | prefix proxy | 1591ms | — |
-| `jihulab` | jihulab.com | GitLab CN mirror | 106ms | — |
+| key | Mirror | Type | Latency | Success | Description |
+|-----|--------|------|---------|---------|-------------|
+| `gh-proxy-org` * | gh-proxy.org | prefix proxy | 188ms | 2/3 | Default mirror |
+| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | 133ms | 3/3 | IPv4-only smart DNS |
+| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | 206ms | 3/3 | IPv6/IPv4 dual-stack |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | 230ms | 3/3 | Fastly CDN |
+| `kkgithub` | kkgithub.com | domain replace | 225ms | 1/3 | — |
+| `github-akams` | github.akams.cn | prefix proxy | 34ms | 3/3 | — |
+| `gitclone` | gitclone.com | path prefix | 59ms | 2/3 | — |
+| `github-ur1` | github.ur1.fun | domain replace | 197ms | 3/3 | — |
+| `gh-proxy-com` | gh-proxy.com | prefix proxy | 34ms | 2/3 | — |
+| `ghproxy-net` | ghproxy.net | prefix proxy | 255ms | 3/3 | — |
+| `jihulab` | jihulab.com | GitLab CN mirror | 52ms | 3/3 | — |
 
-> `*` Default mirror. 2026-07-06 TCP port 443 test, Shenzhen China Mobile IPv4/IPv6 dual-stack.
+> `*` Default mirror. 2026-07-14 Windows TCP port 443 test, 3-run average (WSL showed inflated latency, so native Windows networking was used instead).
 
 ## Auto-Protection
 
