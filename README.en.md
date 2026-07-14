@@ -5,7 +5,7 @@
 ## 📑 Table of Contents
 
 - [🏆 Why Choose Us](#why-choose-us)
-- [📦 Get Started](#get-started)
+- [📦 Get the Tool](#get-the-tool)
 - [🚀 Quick Start](#quick-start)
 - [⚙️ Install](#install)
   - [Windows](#windows)
@@ -31,7 +31,7 @@
 
 ## 🏆 Why Choose Us
 
-- **Safe & worry-free** — Auto-resets remote to official URL after cloning, download fast, `pull`/`push` safe
+- **Safe & worry-free** — Automatically resets the remote to the official URL after cloning, so downloads are fast while `pull`/`push` stay safe
 - **Auditable code** — Pure-text Python source, no binaries, no obfuscation, no compiled artifacts, fully public and reviewable
 - **Zero dependencies** — Python standard library only, no `pip install` needed
 - **Smart protection** — Speed monitoring + auto-retry + fallback to direct, very low failure rate
@@ -42,13 +42,20 @@
 - **Bilingual** — Auto-detects and switches between Chinese/English
 - **Highly customizable** — Edit `mirror.json` to add/remove mirrors, takes effect next run
 
-## Get Started
+## Get the Tool
+
+```bash
+git clone https://github.com/bcggxx/fast-clone.git
+```
+
+Keep the repository in a fixed local location. Do not move it after installation.
+
+## Quick Start
 
 > [!TIP]
 > Not sure which mirror is fastest? Add the `--fastest` flag and the tool will speed-test and pick the lowest-latency mirror automatically.
 
 ```bash
-git clone https://github.com/bcggxx/fast-clone.git
 cd fast-clone
 
 # Windows
@@ -79,7 +86,7 @@ cd fast-clone\windows
 setup.bat
 ```
 
-The script checks Python/Git (PATH only), adds `fast-clone\windows\` to PATH. Use `fast-clone` from any terminal.
+The script checks for Python and Git from PATH, adds `fast-clone\windows\` to PATH, and makes `fast-clone` available in any terminal.
 
 ### Linux
 
@@ -91,7 +98,7 @@ cd fast-clone/linux
 bash setup.sh
 ```
 
-Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bin` by creating a wrapper script.
+The setup script creates a wrapper that points to `fastclone.py` in place, and the `mirror.json` path stays unchanged.
 
 ### Prerequisites
 
@@ -116,7 +123,7 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 | `ghproxy-net` | ghproxy.net | prefix proxy | 255ms | 3/3 | — |
 | `jihulab` | jihulab.com | GitLab CN mirror | 52ms | 3/3 | — |
 
-> `*` Default mirror. 2026-07-14 Windows TCP port 443 test, 3-run average.
+> `*` Default mirror. 2026-07-14 Shenzhen Mobile IPv4/IPv6 dual-stack TCP 443 port test, average of 3 runs.
 
 ## Auto-Protection
 
