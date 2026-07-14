@@ -124,7 +124,7 @@ bash setup.sh
 | `ghproxy-net` | ghproxy.net | 前缀代理 | 255ms | 3/3 | — |
 | `jihulab` | jihulab.com | GitLab 极狐 | 52ms | 3/3 | — |
 
-> `*` 为默认镜像。2026-07-14 Windows TCP 443 端口实测，3 次测试取均值（WSL 环境下访问偏慢，故改用 Windows 原生网络测试）。
+> `*` 为默认镜像。2026-07-14 Windows TCP 443 端口实测，3 次测试取均值。
 
 ## 自动保护
 

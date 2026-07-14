@@ -116,7 +116,7 @@ Supports Debian/CentOS/Fedora/Arch. Installs to `~/.local/bin` or `/usr/local/bi
 | `ghproxy-net` | ghproxy.net | prefix proxy | 255ms | 3/3 | — |
 | `jihulab` | jihulab.com | GitLab CN mirror | 52ms | 3/3 | — |
 
-> `*` Default mirror. 2026-07-14 Windows TCP port 443 test, 3-run average (WSL showed inflated latency, so native Windows networking was used instead).
+> `*` Default mirror. 2026-07-14 Windows TCP port 443 test, 3-run average.
 
 ## Auto-Protection
 
