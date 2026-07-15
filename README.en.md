@@ -21,6 +21,7 @@
 - [📁 Project Structure](#project-structure)
 - [🔄 Keeping Your Copy Up to Date](#keeping-your-copy-up-to-date)
 - [⚠️ Notes](#notes)
+- [📄 License](#license)
 
 > **Pure vibe coding** — entirely AI-assisted, zero hand-written code.
 
@@ -41,6 +42,7 @@
 - **Daily status report** — GitHub Actions tests mirror reachability daily and publishes via Release
 - **Bilingual** — Auto-detects and switches between Chinese/English
 - **Highly customizable** — Edit `mirror.json` to add/remove mirrors, takes effect next run
+- **Open source** — Released under the MIT License; free to use, modify, and distribute, with full copyright and warranty disclaimer
 
 ## Get the Tool
 
@@ -263,3 +265,14 @@ git pull
 2. SSH URLs are cloned via HTTPS from mirrors, then remote is reset back to SSH
 3. Mirror sites may change; use `--fastest` for real-time speed test
 4. Edit `mirror.json` to add/remove mirrors; takes effect next run
+
+## License
+
+This project is open source under the **MIT License**.
+
+- **Copyright**: Copyright (c) 2026 bcggxx
+- **Core rights**: You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, both for personal and commercial purposes.
+- **Only condition**: The above copyright notice and this permission notice must be included in all copies or substantial portions of the Software.
+- **Disclaimer**: The Software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability.
+
+The full license text is in the [`LICENSE`](LICENSE) file at the repository root.

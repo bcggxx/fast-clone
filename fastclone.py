@@ -87,7 +87,7 @@ def get_mirrors(config: dict) -> dict:
 
 
 def get_default_mirror(config: dict) -> str:
-    return config.get('default', 'kkgithub')
+    return config.get('default', 'gh-proxy-org')
 
 
 def get_speed_threshold(config: dict) -> int:
@@ -796,9 +796,16 @@ def _resolve_mirror_list(args, info, config):
         has_v4, has_v6 = detect_ip_support()
         cand = filter_mirrors_by_ip(cand, has_v4, has_v6)
 
-    if args.fastest:
+    # --fastest: live speed-test to pick the lowest-latency mirror.
+    # Skipped under --dry-run so the preview stays side-effect free.
+    if args.fastest and not args.dry_run:
         fastest = find_fastest_mirror(info, cand, config, args.timeout)
         return [fastest] + [k for k in cand if k != fastest]
+    if args.fastest and args.dry_run:
+        # Preview only: fall back to default-first ordering without
+        # performing any network speed test or writing the cache.
+        d = get_default_mirror(config)
+        return ([d] if d in cand else []) + [k for k in cand if k != d]
 
     if args.mirror:
         if args.mirror not in mirrors:
@@ -883,6 +890,53 @@ def run_git(args: list, **kw) -> subprocess.CompletedProcess:
 # Setup mode (called by setup.bat)
 # ===========================================================================
 
+def _ps_quote(s: str) -> str:
+    """Single-quote a string for safe embedding in a PowerShell command."""
+    return "'" + s.replace("'", "''") + "'"
+
+
+def _add_to_path(target: str, machine: bool) -> str:
+    """Ensure ``target`` is present in the (user|machine) PATH without
+    duplicates.
+
+    Returns ``'ok'`` (added), ``'already'`` (present, no change), or
+    ``'fail'`` (could not configure). Uses PowerShell's
+    ``[Environment]::SetEnvironmentVariable`` to read and write the
+    persisted PATH so we avoid ``setx``'s ~1024-char truncation that can
+    corrupt an existing longer PATH. The target is de-duplicated (by
+    trailing-slash-stripped, case-insensitive comparison) so re-running
+    setup never accumulates copies.
+    """
+    scope = 'Machine' if machine else 'User'
+    try:
+        g = subprocess.run(
+            ['powershell', '-NoProfile', '-NonInteractive', '-Command',
+             f'[Environment]::GetEnvironmentVariable("PATH", "{scope}")'],
+            capture_output=True, text=True, timeout=30)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return 'fail'
+    if g.returncode != 0:
+        return 'fail'
+
+    cur = (g.stdout or '').strip()
+    parts = [p.strip() for p in cur.split(';') if p.strip()]
+    norm = [p.rstrip('\\').lower() for p in parts]
+    if target.rstrip('\\').lower() in norm:
+        return 'already'
+
+    parts.append(target)
+    new_path = ';'.join(parts)
+    try:
+        s = subprocess.run(
+            ['powershell', '-NoProfile', '-NonInteractive', '-Command',
+             f'[Environment]::SetEnvironmentVariable("PATH", '
+             f'{_ps_quote(new_path)}, "{scope}")'],
+            capture_output=True, text=True, timeout=30)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return 'fail'
+    return 'ok' if s.returncode == 0 else 'fail'
+
+
 def _cmd_setup() -> int:
     """Interactive setup: check Git, add to PATH, verify."""
     script = Path(__file__).resolve()
@@ -923,22 +977,15 @@ def _cmd_setup() -> int:
         return 0
 
     target = str(win_dir)
-    if choice == '2':
-        r = subprocess.run(['setx', '/M', 'PATH',
-                            f"{os.environ.get('PATH','')};{target}"],
-                           capture_output=True, text=True)
-        if r.returncode == 0:
-            print_ok(L('setup_system_ok'))
-        else:
-            print_warn(L('setup_path_fail', target))
+    machine = (choice == '2')
+    key_ok = 'setup_system_ok' if machine else 'setup_user_ok'
+    result = _add_to_path(target, machine)
+    if result == 'ok':
+        print_ok(L(key_ok))
+    elif result == 'already':
+        print_ok(L('setup_path_already', target))
     else:
-        r = subprocess.run(['setx', 'PATH',
-                            f"{os.environ.get('PATH','')};{target}"],
-                           capture_output=True, text=True)
-        if r.returncode == 0:
-            print_ok(L('setup_user_ok'))
-        else:
-            print_warn(L('setup_path_fail', target))
+        print_warn(L('setup_path_fail', target))
 
     # 3. Verify
     print()

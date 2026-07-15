@@ -12,7 +12,7 @@
             "new": "kkgithub.com",
             "test_host": "kkgithub.com",
             "ip": "dual",
-            "description": "kkgithub.com - domain replace (27ms)"
+            "description": "kkgithub.com - domain replace"
         },
         "github-ur1": {
             "name": "github.ur1.fun",
@@ -22,7 +22,7 @@
             "new": "github.ur1.fun",
             "test_host": "github.ur1.fun",
             "ip": "dual",
-            "description": "github.ur1.fun - domain replace (83ms)"
+            "description": "github.ur1.fun - domain replace"
         },
         "github-akams": {
             "name": "github.akams.cn",
@@ -31,7 +31,7 @@
             "prefix": "https://github.akams.cn/",
             "test_host": "github.akams.cn",
             "ip": "dual",
-            "description": "github.akams.cn - prefix proxy (16ms)"
+            "description": "github.akams.cn - prefix proxy"
         },
         "gh-proxy-org": {
             "name": "gh-proxy.org",
@@ -76,7 +76,7 @@
             "prefix": "https://gh-proxy.com/",
             "test_host": "gh-proxy.com",
             "ip": "dual",
-            "description": "gh-proxy.com - prefix proxy (183ms)"
+            "description": "gh-proxy.com - prefix proxy"
         },
         "ghproxy-net": {
             "name": "ghproxy.net",
@@ -85,7 +85,7 @@
             "prefix": "https://ghproxy.net/",
             "test_host": "ghproxy.net",
             "ip": "dual",
-            "description": "ghproxy.net - prefix proxy (227ms)"
+            "description": "ghproxy.net - prefix proxy"
         },
         "gitclone": {
             "name": "gitclone.com",
@@ -94,7 +94,7 @@
             "prefix": "https://gitclone.com/github.com/",
             "test_host": "gitclone.com",
             "ip": "v4",
-            "description": "gitclone.com - path prefix (59ms, CN server)"
+            "description": "gitclone.com - path prefix (CN server)"
         },
         "jihulab": {
             "name": "jihulab.com",
@@ -104,7 +104,7 @@
             "new": "jihulab.com",
             "test_host": "jihulab.com",
             "ip": "dual",
-            "description": "jihulab.com - GitLab CN mirror (44ms)"
+            "description": "jihulab.com - GitLab CN mirror"
         }
     }
 }

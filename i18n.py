@@ -106,8 +106,6 @@ _T = {
     'mirror_retries':       {'zh': '重试', 'en': 'Retries'},
     'mirror_usage1':        {'zh': '用法: fast-clone --mirror <名称> <仓库地址>',
                              'en': 'Usage: fast-clone --mirror <name> <repo-url>'},
-    'mirror_usage2':        {'zh': '用法: fast-clone --fastest <仓库地址>',
-                             'en': 'Usage: fast-clone --fastest <repo-url>'},
 
     'repo_info':            {'zh': '仓库信息', 'en': 'Repository Info'},
     'repo_platform':        {'zh': '平台', 'en': 'Platform'},
@@ -120,7 +118,6 @@ _T = {
     'repo_depth':           {'zh': '浅克隆', 'en': 'Shallow Clone'},
 
     'clone_start':          {'zh': '开始克隆', 'en': 'Cloning'},
-    'clone_done':           {'zh': '完成', 'en': 'Done'},
     'clone_success':        {'zh': '克隆成功 (镜像: {})', 'en': 'Clone success (mirror: {})'},
     'clone_receiving':      {'zh': '接收对象', 'en': 'Receiving objects'},
 
@@ -136,7 +133,6 @@ _T = {
     'mirror_switch':        {'zh': '切换到镜像 [{}/{}]: {}',
                              'en': 'Switching to mirror [{}/{}]: {}'},
 
-    'remote_reset':         {'zh': '重置远程地址', 'en': 'Reset Remote'},
     'remote_fail':          {'zh': '重置 remote 失败，请手动: git -C {} remote set-url origin {}',
                              'en': 'Failed to set remote, run: git -C {} remote set-url origin {}'},
 
@@ -149,8 +145,6 @@ _T = {
                              'en': 'Auto-selected: {} ({:.0f}ms)'},
     'speed_cached':         {'zh': '使用缓存测速结果 ({}，{} 天前)',
                              'en': 'Using cached speed test ({}，{} days ago)'},
-    'speed_cache_expired':  {'zh': '发现过期测速缓存 ({}，{} 天前)',
-                             'en': 'Found expired speed-test cache ({}，{} days ago)'},
     'speed_cache_delete_q': {'zh': '检测到 {} 个过期缓存文件 (>7 天)，是否删除? [Y/n]: ',
                              'en': 'Found {} expired cache file(s) (>7 days). Delete? [Y/n]: '},
     'speed_cache_deleted':  {'zh': '已删除 {} 个过期缓存文件',
@@ -198,6 +192,7 @@ _T = {
                              'en': 'Choose install method:\n  [1] User PATH (recommended, no admin)\n  [2] System PATH (requires admin)\n  [3] Skip, use manually\nSelect [1-3]: '},
     'setup_user_ok':        {'zh': '已添加到用户 PATH', 'en': 'Added to User PATH'},
     'setup_system_ok':      {'zh': '已添加到系统 PATH', 'en': 'Added to System PATH'},
+    'setup_path_already':   {'zh': '{} 已在 PATH 中，无需重复添加', 'en': '{} already in PATH, nothing to add'},
     'setup_path_fail':      {'zh': '添加失败，请手动将以下目录添加到 PATH:\n  {}',
                              'en': 'Failed to add. Manually add this to PATH:\n  {}'},
     'setup_verify':         {'zh': '验证安装 ...', 'en': 'Verifying ...'},
