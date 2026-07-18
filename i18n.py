@@ -110,6 +110,8 @@ _T = {
     'repo_info':            {'zh': '仓库信息', 'en': 'Repository Info'},
     'repo_platform':        {'zh': '平台', 'en': 'Platform'},
     'repo_name':            {'zh': '仓库', 'en': 'Repository'},
+    'repo_type':            {'zh': '类型', 'en': 'Type'},
+    'repo_type_wiki':       {'zh': 'Wiki 仓库', 'en': 'Wiki Repository'},
     'repo_official':        {'zh': '官方地址', 'en': 'Official URL'},
     'repo_preferred':       {'zh': '首选镜像', 'en': 'Preferred Mirror'},
     'repo_fallback':        {'zh': '备用镜像', 'en': 'Fallback Mirrors'},

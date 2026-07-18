@@ -106,34 +106,53 @@ def get_connect_retries(config: dict) -> int:
 # URL parsing
 # ===========================================================================
 
+def _split_path(path: str) -> dict:
+    """Split a repo path into (owner, repo, is_wiki).
+
+    A wiki repo is recognised by a ``.wiki`` (or ``.wiki.git``) suffix. For
+    wiki repos the trailing ``.git`` is NOT re-added to the clone URL, because
+    mirror sites may not support wiki cloning.
+    """
+    is_wiki = path.endswith('.wiki') or path.endswith('.wiki.git')
+    if is_wiki and path.endswith('.git'):
+        path = path[:-4]          # .../repo.wiki.git -> .../repo.wiki
+    elif not is_wiki and path.endswith('.git'):
+        path = path[:-4]
+    parts = path.split('/')
+    repo = parts[-1] if parts else ''
+    owner = '/'.join(parts[:-1]) if len(parts) >= 2 else ''
+    return {'owner': owner, 'repo': repo, 'is_wiki': is_wiki}
+
+
 def parse_git_url(url: str) -> dict:
     ssh_m = re.match(r'^git@([^:]+):(.+)$', url)
     if ssh_m:
         domain = ssh_m.group(1)
         path = ssh_m.group(2).rstrip('/')
-        if path.endswith('.git'):
-            path = path[:-4]
-        parts = path.split('/')
-        repo = parts[-1] if parts else ''
-        owner = '/'.join(parts[:-1]) if len(parts) >= 2 else ''
-        return _make_info(url, domain, owner, repo, True)
+        p = _split_path(path)
+        return _make_info(url, domain, p['owner'], p['repo'], True, p['is_wiki'])
 
     parsed = urlparse(url)
     domain = parsed.netloc or parsed.hostname or ''
     path = (parsed.path or '').strip('/').rstrip('/')
-    if path.endswith('.git'):
-        path = path[:-4]
-    parts = path.split('/')
-    repo = parts[-1] if parts else ''
-    owner = '/'.join(parts[:-1]) if len(parts) >= 2 else ''
-    return _make_info(url, domain, owner, repo, False)
+    p = _split_path(path)
+    return _make_info(url, domain, p['owner'], p['repo'], False, p['is_wiki'])
 
 
-def _make_info(url: str, domain: str, owner: str, repo: str, is_ssh: bool) -> dict:
+def _make_info(url: str, domain: str, owner: str, repo: str,
+               is_ssh: bool, is_wiki: bool) -> dict:
+    if is_wiki:
+        # Wiki repos are cloned as "<repo>.wiki" without an extra ".git"
+        # suffix — mirror sites may or may not support wiki cloning.
+        https_url = f'https://{domain}/{owner}/{repo}'
+    else:
+        https_url = f'https://{domain}/{owner}/{repo}.git'
+    # Official address for display: always without a trailing ".git".
+    official = url[:-4] if url.endswith('.git') else url
     return {
-        'original': url, 'domain': domain, 'owner': owner, 'repo': repo,
-        'platform': _detect_platform(domain), 'is_ssh': is_ssh,
-        'https_url': f'https://{domain}/{owner}/{repo}.git',
+        'original': url, 'official': official, 'domain': domain,
+        'owner': owner, 'repo': repo, 'platform': _detect_platform(domain),
+        'is_ssh': is_ssh, 'is_wiki': is_wiki, 'https_url': https_url,
     }
 
 
@@ -1128,7 +1147,9 @@ def main() -> int:
     print_header(L('repo_info'))
     print(f"  {L('repo_platform') + ':':12s} {info['platform']}")
     print(f"  {L('repo_name') + ':':12s} {info['owner']}/{info['repo']}")
-    print(f"  {L('repo_official') + ':':12s} {info['original']}")
+    if info['is_wiki']:
+        print(f"  {L('repo_type') + ':':12s} {L('repo_type_wiki')}")
+    print(f"  {L('repo_official') + ':':12s} {info['official']}")
     fm = mirrors.get(mirror_keys[0], {})
     print(f"  {L('repo_preferred') + ':':12s} {fm.get('name', mirror_keys[0])} ({mirror_keys[0]})")
     if len(mirror_keys) > 1:
