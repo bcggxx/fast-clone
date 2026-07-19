@@ -57,7 +57,7 @@
             "transform": "prefix",
             "prefix": "https://v6.gh-proxy.org/",
             "test_host": "v6.gh-proxy.org",
-            "ip": "v6",
+            "ip": "dual",
             "description": "v6.gh-proxy.org - prefix proxy, IPv6/IPv4 dual-stack"
         },
         "gh-proxy-cdn": {
@@ -66,7 +66,7 @@
             "transform": "prefix",
             "prefix": "https://cdn.gh-proxy.org/",
             "test_host": "cdn.gh-proxy.org",
-            "ip": "dual",
+            "ip": "v4",
             "description": "cdn.gh-proxy.org - prefix proxy, Fastly CDN"
         },
         "gh-proxy-com": {
