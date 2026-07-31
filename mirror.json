@@ -24,15 +24,6 @@
             "ip": "dual",
             "description": "github.ur1.fun - domain replace"
         },
-        "github-akams": {
-            "name": "github.akams.cn",
-            "platforms": ["github"],
-            "transform": "prefix",
-            "prefix": "https://github.akams.cn/",
-            "test_host": "github.akams.cn",
-            "ip": "dual",
-            "description": "github.akams.cn - prefix proxy"
-        },
         "gh-proxy-org": {
             "name": "gh-proxy.org",
             "platforms": ["github"],
