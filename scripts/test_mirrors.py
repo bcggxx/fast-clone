@@ -304,15 +304,20 @@ def main() -> int:
         with open(summary, 'a', encoding='utf-8') as f:
             f.write(report + '\n')
 
-    # Exit non-zero when more than half of the actually-tested mirrors are
-    # unreachable, so the workflow run shows a visible failure for alerting.
-    # (Skipped mirrors — e.g. IPv6-only on an IPv4 runner — do not count.)
-    tested = (counts['reachable'] + counts['tcp_only'] + counts['site_up']
-              + counts['unreachable'] + counts['error'])
+    # Exit policy: alert (non-zero) when the default mirror is unreachable,
+    # or when two or more tested mirrors are unreachable. A single flapping
+    # non-default mirror is common and is surfaced in the report without
+    # failing the run. The workflow uses continue-on-error, so the status
+    # release is still published regardless of this exit code.
+    default_key = cfg.get('default', '')
+    default_failed = any(
+        r['key'] == default_key and r['status'] in ('unreachable', 'error')
+        for r in results)
     failed = counts['unreachable'] + counts['error']
-    if tested > 0 and failed / tested > 0.5:
-        print(f'\nWARNING: {failed}/{tested} mirrors unreachable',
-              file=sys.stderr)
+    if default_failed or failed >= 2:
+        why = (f"default mirror {default_key!r} unreachable"
+               if default_failed else f"{failed} mirrors unreachable")
+        print(f'\nWARNING: {why}', file=sys.stderr)
         return 1
 
     return 0
