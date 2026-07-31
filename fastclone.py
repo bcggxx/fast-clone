@@ -708,8 +708,14 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
         die(L('clone_fail_code', -1, f"无法解析仓库名: {args.url}"))
     tp = Path(td).resolve()
     # 严禁克隆到当前工作目录，避免误删用户数据
-    if tp.resolve() == Path.cwd().resolve():
+    if tp == Path.cwd().resolve():
         die(L('clone_fail_code', -1, "拒绝克隆到当前工作目录"))
+
+    # 保护用户已有数据：目标目录若非空，拒绝克隆（不自动删除），
+    # 由用户手动清空或更换 --target。空目录允许（git clone 可写入）。
+    pre_existing = tp.exists() and any(tp.iterdir())
+    if pre_existing:
+        die(L('target_not_empty', tp))
 
     base = []
     if args.branch:
@@ -742,8 +748,9 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
 
         retry = max_retry
         while retry > 0:
-            # 严禁删除当前工作目录，避免误删用户数据
-            if tp.exists() and tp.resolve() != Path.cwd().resolve():
+            # 清理本工具上一轮克隆失败留下的残留目录；仅当目标不是用户
+            # 已有非空目录（pre_existing 已在上层拦截）时才删除。
+            if tp.exists():
                 print_step(L('cleanup', tp))
                 shutil.rmtree(tp, ignore_errors=True)
 

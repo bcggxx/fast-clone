@@ -171,6 +171,8 @@ _T = {
     'unknown_mirror':       {'zh': "未知镜像 '{}'，可用: {}", 'en': "Unknown mirror '{}', available: {}"},
     'direct_clone':         {'zh': '直接 git clone ...', 'en': 'Direct git clone ...'},
     'cleanup':              {'zh': '清理残留: {}', 'en': 'Cleaning up: {}'},
+    'target_not_empty':     {'zh': '目标目录非空，拒绝覆盖（请清空后重试或更换 --target）: {}',
+                             'en': 'Target directory not empty, refusing to overwrite (clean it or change --target): {}'},
     'check_network':        {'zh': '请检查网络连接，或稍后重试。', 'en': 'Check network, try again later.'},
     'tried_mirrors':        {'zh': '已尝试: {}', 'en': 'Tried: {}'},
     'git_not_found':        {'zh': 'git 命令未找到', 'en': 'git command not found'},
