@@ -57,6 +57,7 @@ def _load_mirror_config() -> dict:
             cfg = json.load(f)
         if not isinstance(cfg, dict) or 'mirrors' not in cfg:
             raise ValueError("mirror.json missing 'mirrors' key")
+        cfg['mirrors'] = _validate_mirrors(cfg.get('mirrors', {}))
         return cfg
     except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
         sys.stderr.write(
@@ -69,6 +70,51 @@ def _load_mirror_config() -> dict:
             "connect_retries": 3,
             "mirrors": {},
         }
+
+
+# Required fields per transform strategy (besides the common ones below).
+_TRANSFORM_REQUIRED = {
+    'prefix':         ('prefix',),
+    'domain_replace': ('old', 'new'),
+    'path_prefix':    ('prefix',),
+    'domain_suffix':  ('old', 'suffix'),
+}
+_MIRROR_REQUIRED = ('name', 'platforms', 'transform', 'test_host')
+
+
+def _validate_mirrors(mirrors: dict) -> dict:
+    """Drop mirrors missing required fields or using an unknown transform.
+
+    Emits one warning per dropped mirror so a mis-edit in mirror.json
+    surfaces clearly at startup instead of crashing mid-clone with a
+    KeyError when ``apply_mirror`` accesses a missing field.
+    """
+    if not isinstance(mirrors, dict):
+        return {}
+    valid: dict[str, dict] = {}
+    for key, m in mirrors.items():
+        if not isinstance(m, dict):
+            sys.stderr.write(f"warning: mirror '{key}' is not an object, skipped\n")
+            continue
+        missing = [f for f in _MIRROR_REQUIRED if not m.get(f)]
+        if missing:
+            sys.stderr.write(
+                f"warning: mirror '{key}' missing field(s) {missing}, skipped\n")
+            continue
+        tf = m.get('transform')
+        need = _TRANSFORM_REQUIRED.get(tf)
+        if need is None:
+            sys.stderr.write(
+                f"warning: mirror '{key}' has unknown transform '{tf}', skipped\n")
+            continue
+        miss_t = [f for f in need if not m.get(f)]
+        if miss_t:
+            sys.stderr.write(
+                f"warning: mirror '{key}' transform '{tf}' "
+                f"missing field(s) {miss_t}, skipped\n")
+            continue
+        valid[key] = m
+    return valid
 
 
 _CONFIG = _load_mirror_config()
