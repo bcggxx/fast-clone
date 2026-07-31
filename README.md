@@ -36,7 +36,7 @@
 - **代码可审计** — 纯文本 Python 源码，无二进制、无混淆、无编译产物，代码完全公开可审查
 - **零依赖** — 仅使用 Python 标准库，无需 `pip install` 任何包
 - **智能保护** — 速度监控 + 自动重试 + 兜底直连，克隆失败概率极低
-- **多镜像支持** — 内置 11 个镜像站，覆盖前缀代理/域名替换/路径前缀等多种策略
+- **多镜像支持** — 内置 10 个镜像站，覆盖前缀代理/域名替换/路径前缀等多种策略
 - **网络自适应** — 自动检测本机 IPv4/IPv6 支持，跳过不可用镜像
 - **测速缓存** — 7 天内测速结果复用，避免重复测速浪费时间
 - **每日状态报告** — GitHub Actions 每日自动测试镜像可达性并以 Release 发布报告
@@ -65,7 +65,7 @@ fast-clone https://github.com/user/repo
 fast-clone --fastest https://github.com/user/repo
 
 # 指定镜像
-fast-clone --mirror github-akams https://github.com/user/repo
+fast-clone --mirror kkgithub https://github.com/user/repo
 
 # 预览转换，不克隆
 fast-clone -n https://github.com/user/repo
@@ -112,21 +112,20 @@ bash setup.sh
 
 ## 可用镜像
 
-| key | 镜像站 | 类型 | 延迟 | 成功率 | 说明 |
-|-----|--------|------|------|--------|------|
-| `gh-proxy-org` * | gh-proxy.org | 前缀代理 | 188ms | 2/3 | 默认镜像 |
-| `gh-proxy-v4` | v4.gh-proxy.org | 前缀代理 | 133ms | 3/3 | 仅 IPv4 智能解析 |
-| `gh-proxy-v6` | v6.gh-proxy.org | 前缀代理 | 206ms | 3/3 | IPv6/IPv4 双栈 |
-| `gh-proxy-cdn` | cdn.gh-proxy.org | 前缀代理 | 230ms | 3/3 | Fastly CDN 加速 |
-| `kkgithub` | kkgithub.com | 域名替换 | 225ms | 1/3 | — |
-| `github-akams` | github.akams.cn | 前缀代理 | 34ms | 3/3 | — |
-| `gitclone` | gitclone.com | 路径前缀 | 59ms | 2/3 | — |
-| `github-ur1` | github.ur1.fun | 域名替换 | 197ms | 3/3 | — |
-| `gh-proxy-com` | gh-proxy.com | 前缀代理 | 34ms | 2/3 | — |
-| `ghproxy-net` | ghproxy.net | 前缀代理 | 255ms | 3/3 | — |
-| `jihulab` | jihulab.com | GitLab 极狐 | 52ms | 3/3 | — |
+| key | 镜像站 | 类型 | 说明 |
+|-----|--------|------|------|
+| `gh-proxy-org` * | gh-proxy.org | 前缀代理 | 默认镜像 |
+| `gh-proxy-v4` | v4.gh-proxy.org | 前缀代理 | 仅 IPv4 智能解析 |
+| `gh-proxy-v6` | v6.gh-proxy.org | 前缀代理 | IPv6/IPv4 双栈 |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | 前缀代理 | Fastly CDN 加速 |
+| `gh-proxy-com` | gh-proxy.com | 前缀代理 | — |
+| `ghproxy-net` | ghproxy.net | 前缀代理 | — |
+| `kkgithub` | kkgithub.com | 域名替换 | — |
+| `github-ur1` | github.ur1.fun | 域名替换 | — |
+| `gitclone` | gitclone.com | 路径前缀 | 国内服务器 |
+| `jihulab` | jihulab.com | 域名替换 | GitLab 极狐，仅加速 gitlab.com 仓库 |
 
-> `*` 为默认镜像。2026-07-14 深圳移动 IPV4/V6双栈 TCP 443 端口实测，3 次测试取均值。
+> `*` 为默认镜像。镜像实时延迟与可达性请以 [Releases](https://github.com/bcggxx/fast-clone/releases/tag/mirror-status) 中每日自动发布的连通性报告为准（每日 UTC 08:00 / 北京时间 16:00 刷新，基于真实 `info/refs` 克隆端点探测）。
 
 ## 自动保护
 

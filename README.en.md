@@ -36,7 +36,7 @@
 - **Auditable code** — Pure-text Python source, no binaries, no obfuscation, no compiled artifacts, fully public and reviewable
 - **Zero dependencies** — Python standard library only, no `pip install` needed
 - **Smart protection** — Speed monitoring + auto-retry + fallback to direct, very low failure rate
-- **Multi-mirror support** — 11 built-in mirrors covering prefix proxy / domain replace / path prefix and more
+- **Multi-mirror support** — 10 built-in mirrors covering prefix proxy / domain replace / path prefix and more
 - **Network adaptive** — Auto-detects IPv4/IPv6 support, skips unavailable mirrors
 - **Speed-test cache** — 7-day result reuse, avoids repeated testing
 - **Daily status report** — GitHub Actions tests mirror reachability daily and publishes via Release
@@ -109,23 +109,22 @@ The setup script creates a wrapper that points to `fastclone.py` in place, and t
 | Python 3.7+ | [python.org](https://www.python.org/downloads/) or package manager |
 | Git | [git-scm.com](https://git-scm.com/downloads/) or package manager |
 
-## Available Mirrors (11)
+## Available Mirrors (10)
 
-| key | Mirror | Type | Latency | Success | Description |
-|-----|--------|------|---------|---------|-------------|
-| `gh-proxy-org` * | gh-proxy.org | prefix proxy | 188ms | 2/3 | Default mirror |
-| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | 133ms | 3/3 | IPv4-only smart DNS |
-| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | 206ms | 3/3 | IPv6/IPv4 dual-stack |
-| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | 230ms | 3/3 | Fastly CDN |
-| `kkgithub` | kkgithub.com | domain replace | 225ms | 1/3 | — |
-| `github-akams` | github.akams.cn | prefix proxy | 34ms | 3/3 | — |
-| `gitclone` | gitclone.com | path prefix | 59ms | 2/3 | — |
-| `github-ur1` | github.ur1.fun | domain replace | 197ms | 3/3 | — |
-| `gh-proxy-com` | gh-proxy.com | prefix proxy | 34ms | 2/3 | — |
-| `ghproxy-net` | ghproxy.net | prefix proxy | 255ms | 3/3 | — |
-| `jihulab` | jihulab.com | GitLab CN mirror | 52ms | 3/3 | — |
+| key | Mirror | Type | Description |
+|-----|--------|------|-------------|
+| `gh-proxy-org` * | gh-proxy.org | prefix proxy | Default mirror |
+| `gh-proxy-v4` | v4.gh-proxy.org | prefix proxy | IPv4-only smart DNS |
+| `gh-proxy-v6` | v6.gh-proxy.org | prefix proxy | IPv6/IPv4 dual-stack |
+| `gh-proxy-cdn` | cdn.gh-proxy.org | prefix proxy | Fastly CDN |
+| `gh-proxy-com` | gh-proxy.com | prefix proxy | — |
+| `ghproxy-net` | ghproxy.net | prefix proxy | — |
+| `kkgithub` | kkgithub.com | domain replace | — |
+| `github-ur1` | github.ur1.fun | domain replace | — |
+| `gitclone` | gitclone.com | path prefix | CN server |
+| `jihulab` | jihulab.com | domain replace | GitLab CN mirror, accelerates gitlab.com repos only |
 
-> `*` Default mirror. 2026-07-14 Shenzhen Mobile IPv4/IPv6 dual-stack TCP 443 port test, average of 3 runs.
+> `*` Default mirror. For live latency and reachability, refer to the daily connectivity report auto-published in [Releases](https://github.com/bcggxx/fast-clone/releases/tag/mirror-status) (refreshed daily at 08:00 UTC / 16:00 Beijing time, based on real `info/refs` clone-endpoint probes).
 
 ## Auto-Protection
 
