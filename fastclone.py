@@ -509,7 +509,14 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
 
     best = min(results, key=results.get)
     if results[best] == float('inf'):
-        fallback = get_default_mirror(config)
+        # All candidates unreachable. Prefer the configured default only if it
+        # is among this platform's candidates; otherwise fall back to the
+        # first candidate. Returning a mirror outside the candidate set (e.g.
+        # a gitlab default when cloning a github repo) would yield a wrong
+        # transform URL, so keep the fallback inside the candidate set and let
+        # the clone flow's mirror-switching walk through the rest.
+        default = get_default_mirror(config)
+        fallback = default if default in candidates else next(iter(candidates))
         print(f"\n{L('speed_all_fail', fallback)}")
         return fallback
 
