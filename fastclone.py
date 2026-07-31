@@ -1107,13 +1107,13 @@ def main() -> int:
 
     epilog = f"""\
 {L('mirror_usage1')}
-  fast-clone --mirror github-akams https://github.com/user/repo
+  fast-clone --mirror kkgithub https://github.com/user/repo
   fast-clone --fastest https://github.com/user/repo
   fast-clone -b main --depth 1 https://github.com/user/repo
   fast-clone --list-mirrors
   fast-clone --dry-run https://github.com/user/repo
 
-{L('mirror_list_title')} ({default}):  gh-proxy-org, kkgithub, gitclone, github-akams, github-ur1, gh-proxy-v4, gh-proxy-v6, gh-proxy-cdn, gh-proxy-com, ghproxy-net, jihulab
+{L('mirror_list_title')} ({default}):  {', '.join(mirrors.keys())}
 
 {L('mirror_threshold')}: {speed_mb:.0f} MB/s  |  {L('mirror_timeout')}: {speed_to}s  |  {L('mirror_retries')}: {retries}x
 """
