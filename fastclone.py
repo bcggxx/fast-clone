@@ -331,8 +331,17 @@ _CACHE_EXPIRE_DAYS = 7
 
 
 def _cache_dir() -> Path:
-    """Ensure the cache directory exists and return it."""
-    _CACHE_DIR.mkdir(exist_ok=True)
+    """Ensure the cache directory exists (owner-only) and return it.
+
+    Mode 0o700 prevents other local users from writing crafted cache files
+    that could influence mirror selection. chmod is reapplied so a directory
+    created by an older version with looser permissions is also tightened.
+    """
+    _CACHE_DIR.mkdir(mode=0o700, exist_ok=True)
+    try:
+        _CACHE_DIR.chmod(0o700)
+    except OSError:
+        pass
     return _CACHE_DIR
 
 
