@@ -160,9 +160,15 @@ def _split_path(path: str) -> dict:
     mirror sites may not support wiki cloning.
     """
     is_wiki = path.endswith('.wiki') or path.endswith('.wiki.git')
-    if is_wiki and path.endswith('.git'):
-        path = path[:-4]          # .../repo.wiki.git -> .../repo.wiki
-    elif not is_wiki and path.endswith('.git'):
+    if is_wiki:
+        # Normalise: strip trailing .git from any wiki variant
+        #   repo.wiki.git -> repo.wiki
+        #   repo.git.wiki -> repo.wiki
+        if path.endswith('.wiki.git'):
+            path = path[:-4]          # .../repo.wiki.git -> .../repo.wiki
+        elif path.endswith('.git.wiki'):
+            path = path[:-9] + '.wiki'  # .../repo.git.wiki -> .../repo.wiki
+    elif path.endswith('.git'):
         path = path[:-4]
     parts = path.split('/')
     repo = parts[-1] if parts else ''
@@ -512,6 +518,9 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
 
     results = _get_speed_results(info['platform'], candidates, timeout)
 
+    if not results:
+        return get_default_mirror(config)
+
     for key, lat in sorted(results.items(), key=lambda x: x[1]):
         s = f"{lat*1000:.0f}ms" if lat != float('inf') else L('speed_unreachable')
         print(f"  {key:18s}  {s}")
@@ -538,13 +547,13 @@ def find_fastest_mirror(info: dict, mirrors: dict, config: dict,
 # ===========================================================================
 
 _SPEED_RE = re.compile(r'(\d+[.,]?\d*)\s*(MiB|KiB)/s')
-_LOCAL_PHASES = [
-    # English
-    'updating files', 'checking out files', 'resolving deltas',
-    # Chinese (git i18n output for zh_CN / zh_TW)
-    '更新文件', '检出文件', '处理 delta', '解析差异', '解析增量',
-    '正在更新', '正在检出',
-]
+_LOCAL_PHASES_RE = re.compile(
+    r'(?:^|(?:\d+%\s+))'       # start-of-line or after a percentage
+    r'(?:remote:\s+)?'          # optional "remote: " prefix
+    r'(?:updating files|checking out files|resolving deltas|'
+    r'更新文件|检出文件|处理 delta|解析差异|解析增量|正在更新|正在检出)',
+    re.IGNORECASE,
+)
 _CONN_ERRS = ['could not resolve host', 'failed to connect',
               'connection timed out', 'connection refused',
               'unable to access', 'network is unreachable',
@@ -613,8 +622,7 @@ def _render_progress(line: str) -> None:
 
 def _parse_speed(line: str) -> tuple[float | None, bool]:
     """Returns (speed_kib, is_local_phase)."""
-    lower = line.lower()
-    if any(p in lower for p in _LOCAL_PHASES):
+    if _LOCAL_PHASES_RE.search(line):
         return None, True
     m = _SPEED_RE.search(line)
     if not m:
@@ -812,9 +820,12 @@ def clone_with_fallback(info: dict, url: str, args: argparse.Namespace,
         while retry > 0:
             # 清理本工具上一轮克隆失败留下的残留目录；仅当目标不是用户
             # 已有非空目录（pre_existing 已在上层拦截）时才删除。
-            if tp.exists():
+            if tp.exists() or tp.is_symlink():
                 print_step(L('cleanup', tp))
-                shutil.rmtree(tp, ignore_errors=True)
+                if tp.is_symlink():
+                    tp.unlink()
+                else:
+                    shutil.rmtree(tp, ignore_errors=True)
 
             res = clone_with_monitor(
                 mu, args.target if args.target else '',
@@ -1159,7 +1170,8 @@ def main() -> int:
     parser.add_argument('--speed-timeout', type=int, help=Lh(h_speedto['zh'], h_speedto['en']))
     parser.add_argument('--list-mirrors', '-l', action='store_true', help=Lh(h_list['zh'], h_list['en']))
     parser.add_argument('--branch', '-b', help=Lh(h_branch['zh'], h_branch['en']))
-    parser.add_argument('--depth', '-d', type=int, help=Lh(h_depth['zh'], h_depth['en']))
+    parser.add_argument('--depth', '-d', type=int, default=None,
+                        help=Lh(h_depth['zh'], h_depth['en']))
     parser.add_argument('--single-branch', action='store_true', help=Lh(h_single['zh'], h_single['en']))
     parser.add_argument('--target', help=Lh(h_target['zh'], h_target['en']))
     parser.add_argument('--no-set-url', action='store_true', help=Lh(h_noset['zh'], h_noset['en']))
@@ -1169,6 +1181,15 @@ def main() -> int:
 
     args, extra = parser.parse_known_args()
     args.extra = extra
+
+    if extra:
+        for a in extra:
+            if a.startswith('-'):
+                print_warn(f"unrecognised argument: {a}")
+
+    if args.depth is not None and args.depth < 1:
+        die(L('clone_fail_code', -1,
+              f"--depth must be >= 1, got {args.depth}"))
 
     # --setup (called by setup.bat)
     if args.setup:
