@@ -1,4 +1,6 @@
 # fast-clone
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone?ref=badge_shield)
+
 
 **中文** | [English](README.en.md)
 
@@ -274,3 +276,7 @@ git pull
 - **免责声明**：本软件按「原样」提供，不附带任何明示或暗示的担保，包括但不限于对适销性、特定用途适用性和非侵权性的担保。作者或版权持有人对任何索赔、损害或其他责任概不负责。
 
 完整的许可证文本见仓库根目录的 [`LICENSE`](LICENSE) 文件。
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone?ref=badge_large)
