@@ -2,6 +2,8 @@
 
 **中文** | [English](README.en.md)
 
+<a href="https://deepwiki.com/bcggxx/fast-clone"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+
 ## 📑 目录
 
 - [🏆 为什么选择我们](#为什么选择我们)
