@@ -1,5 +1,4 @@
 # fast-clone
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone?ref=badge_shield)
 
 
 **中文** | [English](README.en.md)
@@ -277,6 +276,4 @@ git pull
 
 完整的许可证文本见仓库根目录的 [`LICENSE`](LICENSE) 文件。
 
-
-## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbcggxx%2Ffast-clone?ref=badge_large)
