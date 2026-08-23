@@ -184,6 +184,7 @@ _T = {
                              'en': 'All mirrors exhausted, clone failed'},
     'reason':               {'zh': '原因', 'en': 'Reason'},
     'clone_fail_code':      {'zh': '克隆失败 (code={}): {}', 'en': 'Clone failed (code={}): {}'},
+    'interrupted':          {'zh': '用户中断，已退出', 'en': 'Interrupted by user, exiting'},
 
     # setup
     'setup_title':          {'zh': 'fast-clone 安装程序', 'en': 'fast-clone Setup'},

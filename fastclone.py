@@ -715,6 +715,8 @@ def clone_with_monitor(mirror_url: str, target_dir: str,
     mon = SpeedMonitor(min_kib, timeout_sec)
     collected: list[str] = []
     abort = threading.Event()
+    proc = None
+    t = None
 
     try:
         kw: dict = {'stderr': subprocess.PIPE, 'stdout': subprocess.DEVNULL,
@@ -753,6 +755,15 @@ def clone_with_monitor(mirror_url: str, target_dir: str,
 
     except FileNotFoundError:
         return {'status': 'other_error', 'code': -1, 'reason': L('git_not_found')}
+    except KeyboardInterrupt:
+        # git runs in its own session (start_new_session=True) and never
+        # receives the terminal's SIGINT; kill it explicitly, otherwise it
+        # would be orphaned and keep downloading in the background.
+        if proc is not None:
+            _safe_kill(proc)
+        if t is not None:
+            t.join(timeout=2)
+        raise
     except Exception as e:
         return {'status': 'other_error', 'code': -1, 'reason': str(e)}
 
@@ -1284,4 +1295,9 @@ def _build_clone_args(args, url):
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print()
+        print_warn(L('interrupted'))
+        sys.exit(130)  # 128 + SIGINT
